@@ -1,4 +1,4 @@
-package devoir;
+package devoirPC2R;
 
 import java.awt.Graphics;
 

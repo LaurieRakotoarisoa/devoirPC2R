@@ -1,4 +1,4 @@
-package devoir;
+package devoirPC2R;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
