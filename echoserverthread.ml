@@ -1,4 +1,6 @@
 (* compilation: ocamlc -thread unix.cma threads.cma echoserverthread.ml -o echoserver *)
+
+open User
 let list_usr = ref [];;
 let list_sock = ref [];;
 let rec print_list = function 
@@ -7,6 +9,7 @@ let rec print_list = function
 
 let append l a = 
 	l:=!l @ [a];;
+
 let creer_serveur port max_con =
   let sock = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0
   and addr = Unix.inet_addr_of_string "127.0.0.1"
@@ -38,13 +41,22 @@ let service_projet chans =
 					 match s with
 					|[]->()
 					|h::l-> if (String.equal h "CONNECT") then 
-						let usr = (List.hd l) in 
-							if List.mem  usr !list_usr then   ( output_string outchan ("DENIED\n");flush outchan ) 
+						let nom = (List.hd l) in 
+							if List.mem  nom !list_usr then   ( output_string outchan ("DENIED\n");flush outchan ) 
 								else (
-								append list_usr usr;signal_tout usr;
-								print_endline ("Nouvelle connexion d’un client nomme "^usr) )
 
-								
+								let usr = new user nom in (
+									append list_usr nom;signal_tout nom;
+									print_endline ("Nouvelle connexion d’un client nomme "^nom) );
+									output_string outchan ("WELCOME/attente/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan
+
+								)
+							else if (String.equal h "EXIT") then 
+								let nom = (List.hd l) in if List.mem  nom !list_usr then (
+										list_usr := List.filter (fun x -> not (String.equal nom x) ) !list_usr;
+										print_endline ("Deconnexion de "^nom);
+
+									)
 				
 		done;;
 										
