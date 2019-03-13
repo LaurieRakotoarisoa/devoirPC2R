@@ -2,7 +2,8 @@
 
 open User
 let list_usr = ref [];;
-let list_sock = ref [];;
+let list_usr_sock = ref [];;
+
 let rec print_list = function 
 [] -> ()
 | e::l -> print_string e ;print_string " " ; print_list l;;
@@ -22,17 +23,17 @@ let serveur_process sock service =
   while true do
     let (s, caller) = Unix.accept sock
     in
-      ignore(Thread.create service (Unix.in_channel_of_descr s,Unix.out_channel_of_descr s));
-	append list_sock s 
+      ignore(Thread.create service (s));
+	
   done;; 
 
-let signal_tout usr= 
-	List.iter (fun s-> let outchan = Unix.out_channel_of_descr s in 
-				output_string outchan ("NEWPLAYER/"^usr);flush outchan) !list_sock;;
+let signal_tout_sauf nomUsr message= 
+	List.iter (fun (usr,sock)-> if not (String.equal usr nomUsr) then let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan (message^"/"^nomUsr);flush outchan) !list_usr_sock;;
 	
-let service_projet chans = 
-	let inchan = fst chans
-	and outchan = snd chans
+let service_projet socket = 
+	let inchan = Unix.in_channel_of_descr socket
+	and outchan = Unix.out_channel_of_descr socket
 	in 
 		while true do
 			let line = input_line inchan
@@ -46,7 +47,9 @@ let service_projet chans =
 								else (
 
 								let usr = new user nom in (
-									append list_usr nom;signal_tout nom;
+									append list_usr nom;
+									append list_usr_sock (nom,socket);
+									signal_tout_sauf nom "NEWPLAYER";
 									print_endline ("Nouvelle connexion d’un client nomme "^nom) );
 									output_string outchan ("WELCOME/attente/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan
 
@@ -54,6 +57,8 @@ let service_projet chans =
 							else if (String.equal h "EXIT") then 
 								let nom = (List.hd l) in if List.mem  nom !list_usr then (
 										list_usr := List.filter (fun x -> not (String.equal nom x) ) !list_usr;
+										signal_tout_sauf nom "PLAYERLEFT";
+										list_usr_sock :=  List.filter (fun (x,sock) -> not (String.equal nom x) ) !list_usr_sock;
 										print_endline ("Deconnexion de "^nom);
 
 									)
