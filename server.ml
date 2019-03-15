@@ -1,15 +1,11 @@
 (* compilation: ocamlc -thread unix.cma threads.cma echoserverthread.ml -o echoserver *)
 
 open User
+open Service
 let list_usr = ref [];;
 let list_usr_sock = ref [];;
 
-let rec print_list = function 
-[] -> ()
-| e::l -> print_string e ;print_string " " ; print_list l;;
-
-let append l a = 
-	l:=!l @ [a];;
+let rebour = ref true;;
 
 let creer_serveur port max_con =
   let sock = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0
@@ -51,7 +47,10 @@ let service_projet socket =
 									append list_usr_sock (nom,socket);
 									signal_tout_sauf nom "NEWPLAYER";
 									print_endline ("Nouvelle connexion d’un client nomme "^nom) );
-									output_string outchan ("WELCOME/attente/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan
+									output_string outchan ("WELCOME/"^usr # get_phase ^"/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan;
+									if !rebour then ( rebour := false ;
+										let t = Thread.create compte_a_rebours () in Thread.join t;
+										 session ())
 
 								)
 							else if (String.equal h "EXIT") then 
