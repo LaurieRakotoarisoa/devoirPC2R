@@ -2,8 +2,9 @@
 
 open User
 open Service
-let list_usr = ref [];;
+let list_usr_noms = ref [];;
 let list_usr_sock = ref [];;
+let list_usr = ref [];;
 
 let rebour = ref true;;
 
@@ -39,23 +40,24 @@ let service_projet socket =
 					|[]->()
 					|h::l-> if (String.equal h "CONNECT") then 
 						let nom = (List.hd l) in 
-							if List.mem  nom !list_usr then   ( output_string outchan ("DENIED\n");flush outchan ) 
+							if List.mem  nom !list_usr_noms then   ( output_string outchan ("DENIED\n");flush outchan ) 
 								else (
 
 								let usr = new user nom in (
-									append list_usr nom;
+									append list_usr_noms nom;
 									append list_usr_sock (nom,socket);
+									append list_usr usr;
 									signal_tout_sauf nom "NEWPLAYER";
-									print_endline ("Nouvelle connexion d’un client nomme "^nom) );
+									print_endline ("Nouvelle connexion d’un client nomme "^usr#get_nom) );
 									output_string outchan ("WELCOME/"^usr # get_phase ^"/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan;
 									if !rebour then ( rebour := false ;
 										let t = Thread.create compte_a_rebours () in Thread.join t;
-										 session ())
-
+										session !list_usr
+										)
 								)
 							else if (String.equal h "EXIT") then 
-								let nom = (List.hd l) in if List.mem  nom !list_usr then (
-										list_usr := List.filter (fun x -> not (String.equal nom x) ) !list_usr;
+								let nom = (List.hd l) in if List.mem  nom !list_usr_noms then (
+										list_usr_noms := List.filter (fun x -> not (String.equal nom x) ) !list_usr_noms;
 										signal_tout_sauf nom "PLAYERLEFT";
 										list_usr_sock :=  List.filter (fun (x,sock) -> not (String.equal nom x) ) !list_usr_sock;
 										print_endline ("Deconnexion de "^nom);

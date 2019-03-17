@@ -1,4 +1,5 @@
 OCAMLC = ocamlc	
+all: server clean
 server:usr service server.ml
 	$(OCAMLC) -thread unix.cma threads.cma User.cmo Service.cmo server.ml -o server
 usr:User.ml
@@ -6,3 +7,6 @@ usr:User.ml
 service : Service.ml
 	$(OCAMLC) -c -thread unix.cma threads.cma Service.ml
 
+clean: 
+	rm -f *.cmo
+	rm -f *.cmi

@@ -12,5 +12,21 @@ let compte_a_rebours () =
 
 	done
 
-let session () = 
-print_endline "La session commence !"
+let rec get_list_coords  l_usr= 
+	match l_usr with
+	[]-> ()
+	|e::l -> let nom = e # get_nom in (
+			print_endline nom;
+			 print_endline (nom^":"^e#get_coord^"|")); 
+			 get_list_coords l
+
+
+let session l = 
+	print_endline ("nombre de usr dans la session est "^(string_of_int (List.length l)));
+	print_endline "La session commence !";
+	get_list_coords l;
+	
+
+
+
+

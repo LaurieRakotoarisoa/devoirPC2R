@@ -1,4 +1,4 @@
-class user n =
+class user  (n:string)=
 	object 
 		val mutable nom = n 
 		val mutable score = 0
@@ -9,4 +9,5 @@ class user n =
 		method get_score_str = string_of_int score
 		method add_score = score <- score + 1  
 		method get_phase = phase 
+		method get_nom = nom
 	end
