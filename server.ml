@@ -12,6 +12,7 @@ let creer_serveur port max_con =
   let sock = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0
   and addr = Unix.inet_addr_of_string "127.0.0.1"
   in
+    Unix.setsockopt sock Unix.SO_REUSEADDR true;
     Unix.bind sock (Unix.ADDR_INET(addr, port));
     Unix.listen sock max_con ;
     sock;;
