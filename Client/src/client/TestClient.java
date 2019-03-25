@@ -10,6 +10,7 @@ public class TestClient {
 		
 		Client c = new Client(s);
 		System.out.println(c.connect("laurie"));
+		c.ecoute();
 		c.deconnexion();
 	}
 

@@ -31,14 +31,24 @@ public class Client {
 		return true;
 	}
 	
+	public void changePos(double x, double y) throws IOException {
+		String s = "NEWPOS/X"+x+"Y"+y;
+		outchan.writeBytes(s);
+		outchan.flush();
+	}
+	
 	public void deconnexion() throws IOException {
 		outchan.writeBytes("EXIT/"+nom+"/\n");
 		outchan.flush();
 	}
 	
+	public void envoiComm (double angle, int pousse) {
+		String s = "";
+	}
+	
 	public void ecoute() throws IOException {
 		while(true) {
-			System.out.println(inchan.readLine());
+			System.out.println("att"+inchan.readLine());
 		}
 	}
 
