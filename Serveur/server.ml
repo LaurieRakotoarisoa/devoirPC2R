@@ -53,7 +53,7 @@ let service_projet socket =
 									output_string outchan ("WELCOME/"^usr # get_phase ^"/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan;
 									if !rebour then ( rebour := false ;
 										let t = Thread.create compte_a_rebours () in Thread.join t;
-										session !list_usr
+										let s = new session !list_usr in lanche_session s list_usr_sock;
 										)
 								)
 							else if (String.equal h "EXIT") then 
