@@ -12,7 +12,9 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -31,7 +33,8 @@ public class Test extends Application {
 		
         primaryStage.setTitle("Arene");
         Group root = new Group();
-        Scene scene = new Scene(root, 300, 250, Color.LIGHTGREEN);
+        Scene scene = new Scene(root, 300, 250, Color.LIGHTGREEN);      
+        
         TextField f = new TextField();
         Button btn = new Button();
         btn.setText("Se connecter");

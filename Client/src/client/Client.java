@@ -12,6 +12,8 @@ public class Client {
 	private Socket service;
 	private BufferedReader inchan;
 	private DataOutputStream outchan;
+	private double _x;
+	private double _y;
 	
 	
 	public Client(Socket s) throws IOException {
@@ -24,9 +26,13 @@ public class Client {
 		outchan.writeBytes("CONNECT/"+nom+"/"+"\n");
 		outchan.flush();
 		String s = inchan.readLine();
-		if(s.split("\\/")[0].equals("DENIED")) {
+		String [] splitted = s.split("\\/");
+		if(splitted[0].equals("DENIED")) {
 			return false;
 		}
+		String [] coords = splitted[3].split("Y");
+		_x = Integer.parseInt(coords[0].substring(1));
+		_y = Integer.parseInt(coords[1]);
 		this.nom = nom;
 		return true;
 	}
@@ -40,6 +46,7 @@ public class Client {
 	public void deconnexion() throws IOException {
 		outchan.writeBytes("EXIT/"+nom+"/\n");
 		outchan.flush();
+		service.close();
 	}
 	
 	public void envoiComm (double angle, int pousse) {
@@ -48,7 +55,7 @@ public class Client {
 	
 	public void ecoute() throws IOException {
 		while(true) {
-			System.out.println("att"+inchan.readLine());
+			System.out.println(inchan.readLine());
 		}
 	}
 
