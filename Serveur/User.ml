@@ -24,7 +24,7 @@ class session (list_usrs:user list)=
 		method size_users = List.length users
 		method get_usrs = users 
 		method get_coord_objectif = "X"^(string_of_float objectifX)^"Y"^(string_of_float objectifY)
-		method get_list_coords = 
-			 (List.fold_right (fun u acc-> (u#get_nom_and_coord^acc) ) users "/" )
+		method get_list_coords = ""
+			 (* (List.fold_right (fun u acc-> (u#get_nom^acc) ) users "/" ) *)
 				
 	end		 
