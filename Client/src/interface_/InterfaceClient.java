@@ -2,6 +2,10 @@ package interface_;
 
 
 
+import java.io.IOException;
+import java.net.Socket;
+
+import client.Client;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -27,6 +31,7 @@ public class InterfaceClient extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		Client c =new Client(new Socket("127.0.0.1",12345));
 		GridPane grid = new GridPane();
 		grid.setHgap(20);
 		grid.setVgap(20);
@@ -50,13 +55,28 @@ public class InterfaceClient extends Application{
 		
 		Button connexion = new Button("Connexion");
 		connexion.setOnAction(new EventHandler<ActionEvent>() {
-			
-			@Override
-			public void handle(ActionEvent event) {
-				Arene a = new Arene(400,400);
-				
-			}
-		});
+
+            public void handle(ActionEvent event) {
+               if(!userText.getText().equals("")) {
+            	   try {
+					if(c.connect(userText.getText())) {
+						System.out.println("attente");
+						   c.attenteDebut();
+						   System.out.println("fin attente");
+						   primaryStage.hide();
+						   new GameWindow(c).debutSession();
+						   
+						  
+					   }
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+               }
+               
+           
+            }
+        });
 		grid.add(connexion, 4, 5);
 		
 		primaryStage.show();

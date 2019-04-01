@@ -33,7 +33,8 @@ public class Arene {
 
 			@Override
 			public void handle(Event event) {
-			}
+				System.out.println("released");		
+				}
 		});
 		
 		stage.setScene(scene);

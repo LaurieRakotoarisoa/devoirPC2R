@@ -46,11 +46,13 @@ public class Test extends Application {
                if(!f.getText().equals("")) {
             	   try {
 					if(c.connect(f.getText())) {
-						   Stage s = new Stage();
-					       s.setTitle("Fenetre de jeu");
-					       s.setScene(new Scene(new Group(), 450, 450));
-					       s.show();
-					       primaryStage.hide();
+						System.out.println("attente");
+						   c.attenteDebut();
+						   System.out.println("fin attente");
+						   primaryStage.hide();
+						   new GameWindow(c).debutSession();
+						   
+						  
 					   }
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
