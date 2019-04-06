@@ -32,6 +32,13 @@ public class Client {
 			return _y;
 		}
 		
+		public void setX(double n) {
+			_x = n;
+		}
+		public void setY(double n) {
+			_y = n;
+		}
+		
 		protected void setCoords(String s) {
 			String [] splitted = s.split("Y");
 			_x = Double.parseDouble(splitted[0].substring(1));
@@ -70,11 +77,13 @@ public class Client {
 	public void attenteDebut() throws IOException {
 		String line;
 		while(phase.equals("attente")) {
+			System.out.println("boucle");
 			line = inchan.readLine();
+			System.out.println(line);
 			String [] splitted = line.split("\\/");
 			switch(splitted[0]) {
-			case "NEWPLAYER" : players.put(splitted[1], null); scores.put(splitted[1], 0); break;
-			case "PLAYERLEFT" : players.remove(splitted[1]); scores.remove(splitted[1]); break;
+			case "NEWPLAYER" : ajoutJoueur(splitted[1]); break;
+			case "PLAYERLEFT" : retraitJoueur(splitted[1]); break;
 			case "SESSION" : String [] players = splitted[1].split("\\|");
 			for(String p : players) {
 				String user = p.split("\\:")[0];
@@ -104,11 +113,22 @@ public class Client {
 		my_coords.setCoords("X"+x+"Y"+y);
 	}
 	
+	public void ajoutJoueur(String name) {
+		players.put(name, new Coords());
+		scores.put(name, 0);
+	}
+	
+	public void retraitJoueur(String name) {
+		players.remove(name);
+		scores.remove(name);
+	}
+	
 	public void deconnexion() throws IOException {
 		outchan.writeBytes("EXIT/"+nom+"/\n");
 		outchan.flush();
 		service.close();
 	}
+	
 	
 	public Map<String, Coords> getPlayers(){
 		return players;
@@ -116,6 +136,10 @@ public class Client {
 	
 	public Coords getPosition() {
 		return my_coords;
+	}
+	
+	public Coords getObjectif() {
+		return obj_coords;
 	}
 
 }

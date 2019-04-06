@@ -8,7 +8,7 @@ let append l a =
 	l:=!l @ [a]
 
 let compte_a_rebours () = 
-	for i = 20 downto 1 do
+	for i = 2 downto 1 do
 		Thread.delay 1.0;
 		print_endline ("Il reste "^(string_of_int i)^" secondes  avant de lancer la session ");
 
@@ -26,7 +26,7 @@ let lanche_session s list_usr_sock=
 
 
 	List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
-			output_string outchan ("SESSION"^s#get_list_coords^"/"^s#get_coord_objectif);flush outchan) 
+			output_string outchan ("SESSION/"^s#get_list_coords^"/"^s#get_coord_objectif^"\n");flush outchan) 
 			!list_usr_sock;;
 	
 	(* get_list_coords (s#get_usrs);

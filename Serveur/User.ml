@@ -1,3 +1,14 @@
+let get_Coords user =
+	(user#get_nom)^":"^(user#get_coord)
+;;
+
+let print_coords l_users = 
+	let rec print s =
+		match l_users with
+		u::l -> print (s^"|"^u);
+		| [] -> s
+	in print ""
+
 class user  (n:string)=
 	object 
 		val mutable nom = n 
@@ -11,6 +22,7 @@ class user  (n:string)=
 		method get_phase = phase 
 		method get_nom = nom
 		method get_nom_and_coord = nom^":"^"X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
+		method change_phase p = phase = p
 	end
 
 
@@ -24,7 +36,16 @@ class session (list_usrs:user list)=
 		method size_users = List.length users
 		method get_usrs = users 
 		method get_coord_objectif = "X"^(string_of_float objectifX)^"Y"^(string_of_float objectifY)
-		method get_list_coords = ""
+		method get_list_coords = let l = List.map get_Coords users in
+					let s = ref (List.hd l) and l2 = List.tl l in
+						let rec liste_to_str liste =
+						match liste with
+						u::tl -> s := !s^"|"^u; liste_to_str tl;
+						| [] -> ()
+					in liste_to_str l2; 
+					!s;
+					
+									
 			 (* (List.fold_right (fun u acc-> (u#get_nom^acc) ) users "/" ) *)
 				
 	end		 

@@ -27,7 +27,7 @@ let serveur_process sock service =
 
 let signal_tout_sauf nomUsr message= 
 	List.iter (fun (usr,sock)-> if not (String.equal usr nomUsr) then let outchan = Unix.out_channel_of_descr sock in 
-			output_string outchan (message^"/"^nomUsr);flush outchan) !list_usr_sock;;
+			output_string outchan (message^"/"^nomUsr^"\n");flush outchan) !list_usr_sock;;
 	
 let service_projet socket = 
 	let inchan = Unix.in_channel_of_descr socket

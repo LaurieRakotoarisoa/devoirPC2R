@@ -8,15 +8,21 @@ import java.net.Socket;
 import client.Client;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
@@ -24,6 +30,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class InterfaceClient extends Application{
+	
+	protected GameWindow g;
 	
 	public static void main (String [] args) {
 		Application.launch(InterfaceClient.class);
@@ -53,30 +61,52 @@ public class InterfaceClient extends Application{
 		TextField userText = new TextField();
 		grid.add(userText, 3, 5);
 		
+		
 		Button connexion = new Button("Connexion");
 		connexion.setOnAction(new EventHandler<ActionEvent>() {
 
             public void handle(ActionEvent event) {
+            	Alert a;
                if(!userText.getText().equals("")) {
             	   try {
 					if(c.connect(userText.getText())) {
+						a = new Alert(AlertType.INFORMATION);
+						 a.setHeaderText("attente");
+		            	   a.setContentText("Attente début de session");
+		            	   a.show();
 						System.out.println("attente");
 						   c.attenteDebut();
 						   System.out.println("fin attente");
 						   primaryStage.hide();
-						   new GameWindow(c).debutSession();
+						   g = new GameWindow(c);
+						   g.debutSession();
 						   
 						  
 					   }
+					else {
+						a = new Alert(AlertType.WARNING);
+		            	   a.setHeaderText("nom déjà existant");
+		            	   a.setContentText("Ce nom est déjà utilisé");
+		            	   a.show();
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
                }
+               else {
+            	   a = new Alert(AlertType.WARNING);
+            	   a.setHeaderText("nom incorrect");
+            	   a.setContentText("Au moins 1 caractère requis");
+            	   a.show();
+               }
                
            
             }
         });
+		
+		
+		
 		grid.add(connexion, 4, 5);
 		
 		primaryStage.show();
