@@ -14,8 +14,14 @@ public class Client {
 	private Socket service;
 	private BufferedReader inchan;
 	private DataOutputStream outchan;
+	
 	private Coords obj_coords = new Coords();
 	private Coords my_coords = new Coords();
+	private Coords my_speed = new Coords();
+	private double angle = 0;
+	private final double turnit=1;
+	private final double thrustit=1;
+	
 	private String phase;
 	private Map<String,Coords> players = new HashMap<String, Client.Coords>();
 	private Map <String,Integer> scores = new HashMap<String, Integer>();
@@ -56,6 +62,8 @@ public class Client {
 		this.service = s;
 		inchan = new BufferedReader(new InputStreamReader(service.getInputStream()));
 		outchan = new DataOutputStream(s.getOutputStream());
+		my_speed.setX(0);
+		my_speed.setY(0);
 	}
 	
 	public boolean connect(String nom) throws IOException {
@@ -106,11 +114,12 @@ public class Client {
 		}
 	}
 	
-	public void changePos(double x, double y) throws IOException {
-		String s = "NEWPOS/X"+x+"Y"+y;
+	public synchronized void changePos() throws IOException {
+		my_coords.setX(my_coords._x+my_speed._x);
+		my_coords.setY(my_coords._y+my_speed._y);
+		String s = "NEWPOS/X"+my_coords._x+"Y"+my_coords._y;
 		outchan.writeBytes(s);
 		outchan.flush();
-		my_coords.setCoords("X"+x+"Y"+y);
 	}
 	
 	public void ajoutJoueur(String name) {
@@ -127,6 +136,23 @@ public class Client {
 		outchan.writeBytes("EXIT/"+nom+"/\n");
 		outchan.flush();
 		service.close();
+	}
+	
+	public synchronized void clock() {
+		angle = angle - turnit;
+		my_speed.setX(thrustit*Math.cos(angle));
+		my_speed.setY(thrustit*Math.sin(angle));
+	}
+	
+	public synchronized void anticlock() {
+		angle = angle +turnit;
+		my_speed.setX(thrustit*Math.cos(angle));
+		my_speed.setY(thrustit*Math.sin(angle));
+	}
+	
+	public synchronized void thrust() {
+		my_speed.setX(my_speed._x + thrustit*Math.cos(angle));
+		my_speed.setY(my_speed._y + thrustit*Math.sin(angle));
 	}
 	
 	

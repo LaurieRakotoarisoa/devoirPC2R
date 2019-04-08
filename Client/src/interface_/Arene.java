@@ -1,49 +1,100 @@
 package interface_;
 
-import javafx.event.Event;
+import java.io.File;
+import java.io.IOException;
+
+import client.Client;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ToolBar;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class Arene {
+public class Arene{
 	
-	private Stage stage;
-	private Scene scene;
-	private Group group;
-	private GraphicsContext gc;
+	private int height;
+	private int width;
+	private Stage arene;
+	private Group nodes;
+	private Canvas c;
+	private Client client;
 	
-	public Arene(int height, int width) {
-		stage = new Stage();
-		group = new Group();
-		scene = new Scene(group,width,height,Color.WHITE);
-		Canvas canvas = new Canvas(height,width);
-		gc = canvas.getGraphicsContext2D();
-		group.getChildren().add(canvas);
-		canvas.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler<Event>() {
+	private Image joueur = new Image(new File("images/IMG_0094.GIF").toURI().toString(),50,50,false,false);
+	
+	public Arene(Client client,int h, int w) {
+		this.client = client;
+		
+		height = h;
+		width = w;
+		arene = new Stage();
+		arene.setResizable(false);
+		
+		nodes = new Group();
+		c =new Canvas(w,h);
+		
+		
+		nodes.getChildren().add(c);
+		drawArene();
+		
+		
+		arene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 
 			@Override
-			public void handle(Event event) {
-				System.out.println("released");		
+			public void handle(KeyEvent event) {
+				switch(event.getCode()) {
+				case LEFT : client.clock(); break;
+				case RIGHT : client.anticlock(); break;
+				case UP : client.thrust(); break;
+				default:
+					break; 
 				}
+				
+				
+				
+			}
+			
 		});
 		
-		stage.setScene(scene);
-		stage.setTitle("Arene");
-		stage.show();
+		arene.setScene(new Scene(nodes,w,h));
+		arene.show();
+		new ThreadArene(this).start();
+		
 	}
 	
-	public void add() {
-		gc.drawImage(new Image("images/img.jpg"), 50, 50);
+	public void drawArene() {
+		GraphicsContext gc = c.getGraphicsContext2D();
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, width, height);
+		gc.setFill(Color.BURLYWOOD);
+		gc.fillOval(0, 0, width, height);
 	}
+	
+	public void changePos() {
+		try {
+			client.changePos();
+		} catch (IOException e) {
+			System.out.println("erreur envoi serveur coords");
+		}
+	}
+	
+	public void refresh() throws IOException {
+		client.changePos();
+		drawArene();
+		drawObjectif();
+		c.getGraphicsContext2D().drawImage(joueur,client.getPosition().getX()%width, client.getPosition().getY()%height);
+		
+	}
+	
+	public void drawObjectif() {
+		c.getGraphicsContext2D().setFill(Color.BLACK);
+		c.getGraphicsContext2D().fillOval(client.getObjectif().getX(), client.getObjectif().getY(), 15.0, 15.0);
+	}
+
 
 }

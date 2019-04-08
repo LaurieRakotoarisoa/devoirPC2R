@@ -43,17 +43,17 @@ public class GameWindow {
 			@Override
 			public void handle(KeyEvent event) {
 				
-				try {
-				if(event.getCode() == KeyCode.LEFT) client.changePos(Math.abs((client.getPosition().getX()-10+game.getWidth())%game.getWidth()), client.getPosition().getY());
-				if(event.getCode() == KeyCode.RIGHT) client.changePos(Math.abs((client.getPosition().getX()+10)%(game.getWidth()-10)), client.getPosition().getY());
-				if(event.getCode() == KeyCode.UP) client.changePos(client.getPosition().getX(), Math.abs((client.getPosition().getY()-10+game.getHeight())%game.getHeight()));
-				if(event.getCode() == KeyCode.DOWN) client.changePos(client.getPosition().getX(), Math.abs((client.getPosition().getY()+10)%(game.getHeight()-10)));
-				System.out.println("X"+client.getPosition().getX()+"Y"+client.getPosition().getY());
-				}catch(IOException e) {
-					System.out.println("erreur");
-				}
-				drawCars(gc);
-				drawObjectif();
+				//try {
+				//if(event.getCode() == KeyCode.LEFT) client.changePos(Math.abs((client.getPosition().getX()-10+game.getWidth())%game.getWidth()), client.getPosition().getY());
+				//if(event.getCode() == KeyCode.RIGHT) client.changePos(Math.abs((client.getPosition().getX()+10)%(game.getWidth()-10)), client.getPosition().getY());
+				//if(event.getCode() == KeyCode.UP) client.changePos(client.getPosition().getX(), Math.abs((client.getPosition().getY()-10+game.getHeight())%game.getHeight()));
+				//if(event.getCode() == KeyCode.DOWN) client.changePos(client.getPosition().getX(), Math.abs((client.getPosition().getY()+10)%(game.getHeight()-10)));
+				//System.out.println("X"+client.getPosition().getX()+"Y"+client.getPosition().getY());
+				//}catch(IOException e) {
+					//System.out.println("erreur");
+				//}
+				//drawCars(gc);
+				//drawObjectif();
 			}
 		});
 		game.setScene(new Scene(root, 450, 450));

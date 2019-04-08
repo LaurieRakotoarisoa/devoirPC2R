@@ -31,6 +31,7 @@ class session (list_usrs:user list)=
 		val mutable users = list_usrs
 		val mutable objectifX = Random.float 100.0
 		val mutable objectifY = Random.float 100.0
+		val mutable win_cap = 2
 
 		method connect x = users <- (x:user)::users
 		method size_users = List.length users

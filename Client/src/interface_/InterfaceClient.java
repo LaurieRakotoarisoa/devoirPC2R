@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 
 public class InterfaceClient extends Application{
 	
-	protected GameWindow g;
+	protected Arene arene;
 	
 	public static void main (String [] args) {
 		Application.launch(InterfaceClient.class);
@@ -78,8 +78,7 @@ public class InterfaceClient extends Application{
 						   c.attenteDebut();
 						   System.out.println("fin attente");
 						   primaryStage.hide();
-						   g = new GameWindow(c);
-						   g.debutSession();
+						   arene = new Arene(c,400,900);
 						   
 						  
 					   }
@@ -107,9 +106,11 @@ public class InterfaceClient extends Application{
 		
 		
 		
+		
 		grid.add(connexion, 4, 5);
 		
 		primaryStage.show();
+		
 		
 	}
 
