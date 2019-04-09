@@ -52,13 +52,13 @@ let service_projet socket =
 									session_courant#connect usr (nom,socket);
 									signal_tout_sauf nom "NEWPLAYER";
 									print_endline ("Nouvelle connexion d’un client nomme "^usr#get_nom) );
-									output_string outchan ("WELCOME/"^session_courant#get_phase ^"/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan;
+									output_string outchan ("WELCOME/"^session_courant#get_phase ^"/"^session_courant#get_list_scores^"/"^usr#get_coord^"\n"); flush outchan;
 									if !rebour then ( rebour := false ;
 										let t = Thread.create compte_a_rebours () in Thread.join t;
-										lanche_session session_courant list_usr_sock;
+										lanche_session session_courant ;
 										)
 								)
-							else if (String.equal h "EXIT") then 
+							else if (String.equal h "EXIT") then (
 								let nom = (List.hd l) in if List.mem  nom !list_usr_noms then (
 										list_usr_noms := List.filter (fun x -> not (String.equal nom x) ) !list_usr_noms;
 										signal_tout_sauf nom "PLAYERLEFT";
@@ -67,6 +67,16 @@ let service_projet socket =
 										print_endline ("Deconnexion de "^nom);
 
 									)
+								)
+							else if (String.equal h "NEWPOS") then (
+								let coord = (List.hd l) in print_endline coord ;
+								let len = String.length coord and index_Y = String.index coord 'Y' in 
+								let coordX = String.sub coord 1 (index_Y-1) 
+								and coordY = String.sub coord (index_Y+1) (len-index_Y-1) in 
+								print_endline coordX;
+								print_endline coordY;
+
+							)
 				
 		done;;
 										

@@ -1,6 +1,10 @@
 let get_Coords user =
 	(user#get_nom)^":"^(user#get_coord)
-;;
+
+let get_Scores user =
+	(user#get_nom)^":"^(string_of_int user#get_score)
+
+
 
 let print_coords l_users = 
 	let rec print s =
@@ -16,11 +20,13 @@ class user  (n:string)=
 		val mutable coordX = Random.float 100.0
 		val mutable coordY = Random.float 100.0
 		val mutable vitesse = (0,0)
+		val mutable vainqueur = false
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
-		method get_score_str = string_of_int score
+		method get_score = score
 		method add_score = score <- score + 1  
 		method get_nom = nom
 		method get_nom_and_coord = nom^":"^"X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
+		method gagne =  vainqueur <- true
 	end
 
 
@@ -50,13 +56,23 @@ class session (list_usrs:user list)=
 						| [] -> ()
 					in liste_to_str l2; 
 					!s;
+
+		method get_list_scores = let l = List.map get_Scores users in
+					let s = ref (List.hd l) and l2 = List.tl l in
+						let rec liste_to_str liste =
+						match liste with
+						u::tl -> s := !s^"|"^u; liste_to_str tl;
+						| [] -> ()
+					in liste_to_str l2; 
+					!s;
 		method session_lauched = phase <- "jeu" 
 		method session_arrete = phase <- "attente"
 		method get_phase = phase 
 		method genere_nouvel_objectif = objectifX <- Random.float 100.0;
 										objectifY <- Random.float 100.0
 					
-									
+			
+		(* method set_newpos coordX coordY = 						 *)
 			 (* (List.fold_right (fun u acc-> (u#get_nom^acc) ) users "/" ) *)
 				
 	end		 
