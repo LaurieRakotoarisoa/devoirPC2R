@@ -15,6 +15,7 @@ class user  (n:string)=
 		val mutable score = 0
 		val mutable coordX = Random.float 100.0
 		val mutable coordY = Random.float 100.0
+		val mutable vitesse = (0,0)
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method get_score_str = string_of_int score
 		method add_score = score <- score + 1  
@@ -25,15 +26,21 @@ class user  (n:string)=
 
 class session (list_usrs:user list)= 
 	object(self)
+		val obj_radius = 5
 		val mutable users = list_usrs
+		val mutable list_usr_sock = []
 		val mutable objectifX = Random.float 100.0
 		val mutable objectifY = Random.float 100.0
 		val mutable win_cap = 2
 		val mutable phase = "attente"
-		method connect x = users <- (x:user)::users
-		method deconnect nom_usr = users <- List.filter (fun u -> not (String.equal u#get_nom nom_usr)) users
+		method connect x nom_socket = users <- (x:user)::users ;
+								list_usr_sock <- (nom_socket :string *Unix.file_descr)::list_usr_sock
+		method deconnect nom_usr = users <- List.filter (fun u -> not (String.equal u#get_nom nom_usr)) users;
+									list_usr_sock <- List.filter (fun nom_socket ->  let (nom,sock) = nom_socket in 
+																	not (String.equal nom nom_usr) ) list_usr_sock
 		method size_users = List.length users
 		method get_usrs = users 
+		method get_usrs_socks = list_usr_sock
 		method get_coord_objectif = "X"^(string_of_float objectifX)^"Y"^(string_of_float objectifY)
 		method get_list_coords = let l = List.map get_Coords users in
 					let s = ref (List.hd l) and l2 = List.tl l in
@@ -44,7 +51,10 @@ class session (list_usrs:user list)=
 					in liste_to_str l2; 
 					!s;
 		method session_lauched = phase <- "jeu" 
+		method session_arrete = phase <- "attente"
 		method get_phase = phase 
+		method genere_nouvel_objectif = objectifX <- Random.float 100.0;
+										objectifY <- Random.float 100.0
 					
 									
 			 (* (List.fold_right (fun u acc-> (u#get_nom^acc) ) users "/" ) *)

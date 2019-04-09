@@ -49,7 +49,7 @@ let service_projet socket =
 									append list_usr_noms nom;
 									append list_usr_sock (nom,socket);
 									append list_usr usr;
-									session_courant#connect usr;
+									session_courant#connect usr (nom,socket);
 									signal_tout_sauf nom "NEWPLAYER";
 									print_endline ("Nouvelle connexion d’un client nomme "^usr#get_nom) );
 									output_string outchan ("WELCOME/"^session_courant#get_phase ^"/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan;
