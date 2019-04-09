@@ -15,6 +15,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class Arene{
 	
@@ -61,9 +62,24 @@ public class Arene{
 			
 		});
 		
+		arene.setOnCloseRequest(new EventHandler<WindowEvent>() {
+
+			@Override
+			public void handle(WindowEvent event) {
+				arene.close();
+				try {
+					client.deconnexion();
+				} catch (IOException e) {
+					System.out.println("deconnexion");
+				}
+				
+			}
+			
+		});
+		
 		arene.setScene(new Scene(nodes,w,h));
 		arene.show();
-		new ThreadArene(this).start();
+		new ThreadArene(this,client.getTickRate()).start();
 		
 	}
 	
@@ -73,14 +89,6 @@ public class Arene{
 		gc.fillRect(0, 0, width, height);
 		gc.setFill(Color.BURLYWOOD);
 		gc.fillOval(0, 0, width, height);
-	}
-	
-	public void changePos() {
-		try {
-			client.changePos();
-		} catch (IOException e) {
-			System.out.println("erreur envoi serveur coords");
-		}
 	}
 	
 	public void refresh() throws IOException {

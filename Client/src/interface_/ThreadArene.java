@@ -4,8 +4,9 @@ import java.io.IOException;
 
 public class ThreadArene extends Thread{
 	private Arene a;
+	private int tickrate;
 	
-	public ThreadArene(Arene a) {
+	public ThreadArene(Arene a,int t) {
 		this.a = a;
 	}
 	public void run() {
@@ -14,8 +15,7 @@ public class ThreadArene extends Thread{
 			try {
 				a.refresh();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				break;
 			}
 			try {
 				Thread.sleep((int)((1/100.0)*1000));
@@ -23,6 +23,8 @@ public class ThreadArene extends Thread{
 				break;
 			}
 		}
+		
+		System.out.println("fin thread Arene");
 		
 	}
 

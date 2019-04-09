@@ -15,18 +15,20 @@ public class Client {
 	private BufferedReader inchan;
 	private DataOutputStream outchan;
 	
-	private Coords obj_coords = new Coords();
-	private Coords my_coords = new Coords();
-	private Coords my_speed = new Coords();
-	private double angle = 0;
+	private Coords obj_coords = new Coords(); //Coordonnées de l'objectif
+	private Coords my_coords = new Coords(); //Coordonnées du client 
+	private Coords my_speed = new Coords(); // Vecteur vitesse
+	private double angle = 0; // direction angle
 	private final double turnit=1;
 	private final double thrustit=1;
 	
-	private String phase;
-	private Map<String,Coords> players = new HashMap<String, Client.Coords>();
-	private Map <String,Integer> scores = new HashMap<String, Integer>();
+	private String phase; //phase de la session courante
 	
-	public class Coords{
+	private int tickrate = 100;
+	private Map<String,Coords> players = new HashMap<String, Client.Coords>(); //Nom des adversaires et leur position
+	private Map <String,Integer> scores = new HashMap<String, Integer>(); // scores des adversaires
+	
+	public class Coords{ //Classe interne pour la gestion des coordonnées de joueurs
 		private double _x;
 		private double _y;
 		
@@ -70,6 +72,7 @@ public class Client {
 		outchan.writeBytes("CONNECT/"+nom+"/"+"\n");
 		outchan.flush();
 		String s = inchan.readLine();
+		
 		String [] splitted = s.split("\\/");
 		if(splitted[0].equals("DENIED")) {
 			return false;
@@ -79,6 +82,18 @@ public class Client {
 			obj_coords.setCoords(splitted[3]);
 		}
 		this.nom = nom;
+		
+		/*String [] scores = splitted[2].split("\\|");
+		System.out.println("connect"+splitted[2]);
+		String score;
+		String name;
+		for(String sc : scores) {
+			System.out.println(sc);
+			name = sc.split("\\:")[0];
+			score = sc.split("\\:")[1];
+			this.scores.put(name, Integer.parseInt(score));
+		}*/
+		
 		return true;
 	}
 	
@@ -87,7 +102,6 @@ public class Client {
 		while(phase.equals("attente")) {
 			System.out.println("boucle");
 			line = inchan.readLine();
-			System.out.println(line);
 			String [] splitted = line.split("\\/");
 			switch(splitted[0]) {
 			case "NEWPLAYER" : ajoutJoueur(splitted[1]); break;
@@ -109,15 +123,17 @@ public class Client {
 			default : break;
 			}
 		}
-		for(String p : players.keySet()){
-			System.out.println("joueur "+p+" "+players.get(p));
-		}
+		new ThreadJeu(this).start();
 	}
 	
 	public synchronized void changePos() throws IOException {
 		my_coords.setX(my_coords._x+my_speed._x);
 		my_coords.setY(my_coords._y+my_speed._y);
-		String s = "NEWPOS/X"+my_coords._x+"Y"+my_coords._y;
+		
+	}
+	
+	public void sendPos() throws IOException {
+		String s = "NEWPOS/"+my_coords;
 		outchan.writeBytes(s);
 		outchan.flush();
 	}
@@ -166,6 +182,46 @@ public class Client {
 	
 	public Coords getObjectif() {
 		return obj_coords;
+	}
+	
+	public int getTickRate() {
+		return tickrate;
+	}
+	
+	public void jeu() throws IOException {
+		String line;
+		line = inchan.readLine();
+		String [] splitted = line.split("\\/");
+		switch(splitted[0]) {
+		
+		
+			case "TICK" : String [] players = splitted[1].split("\\|");
+				for(String p : players) {
+					String user = p.split("\\:")[0];
+					String coords = p.split("\\:")[1];
+					if(user.equals(nom)) {
+						my_coords.setCoords(coords);
+						continue;
+					}
+					if(!this.players.containsKey(p)) {
+						this.players.put(p, new Coords());
+					}
+					this.players.get(p).setCoords(coords);
+				} sendPos(); break;
+				
+			case "NEWOBJ" : obj_coords.setCoords(splitted[1]); 
+							String [] scores = splitted[2].split("\\|");
+							for(String name_score : scores) {
+								String name = name_score.split("\\:")[0];
+								String score = name_score.split("\\:")[1];
+								this.scores.put(name, Integer.parseInt(score));
+							}
+							break;
+		}
+		
+		
+
+		
 	}
 
 }

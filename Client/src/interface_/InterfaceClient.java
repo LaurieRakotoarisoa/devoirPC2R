@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import client.Client;
+import client.ThreadJeu;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -74,11 +75,10 @@ public class InterfaceClient extends Application{
 						 a.setHeaderText("attente");
 		            	   a.setContentText("Attente début de session");
 		            	   a.show();
-						System.out.println("attente");
 						   c.attenteDebut();
-						   System.out.println("fin attente");
 						   primaryStage.hide();
 						   arene = new Arene(c,400,900);
+						   
 						   
 						  
 					   }
