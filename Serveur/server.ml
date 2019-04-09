@@ -5,6 +5,7 @@ open Service
 let list_usr_noms = ref [];;
 let list_usr_sock = ref [];;
 let list_usr = ref [];;
+let session_courant = new session [];; 
 
 let rebour = ref true;;
 
@@ -48,12 +49,13 @@ let service_projet socket =
 									append list_usr_noms nom;
 									append list_usr_sock (nom,socket);
 									append list_usr usr;
+									session_courant#connect usr;
 									signal_tout_sauf nom "NEWPLAYER";
 									print_endline ("Nouvelle connexion d’un client nomme "^usr#get_nom) );
-									output_string outchan ("WELCOME/"^usr # get_phase ^"/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan;
+									output_string outchan ("WELCOME/"^session_courant#get_phase ^"/"^usr # get_score_str^"/"^usr#get_coord^"\n"); flush outchan;
 									if !rebour then ( rebour := false ;
 										let t = Thread.create compte_a_rebours () in Thread.join t;
-										let s = new session !list_usr in lanche_session s list_usr_sock;
+										lanche_session session_courant list_usr_sock;
 										)
 								)
 							else if (String.equal h "EXIT") then 
@@ -61,6 +63,7 @@ let service_projet socket =
 										list_usr_noms := List.filter (fun x -> not (String.equal nom x) ) !list_usr_noms;
 										signal_tout_sauf nom "PLAYERLEFT";
 										list_usr_sock :=  List.filter (fun (x,sock) -> not (String.equal nom x) ) !list_usr_sock;
+										session_courant#deconnect nom;
 										print_endline ("Deconnexion de "^nom);
 
 									)

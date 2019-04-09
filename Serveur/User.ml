@@ -15,14 +15,11 @@ class user  (n:string)=
 		val mutable score = 0
 		val mutable coordX = Random.float 100.0
 		val mutable coordY = Random.float 100.0
-		val mutable phase = "attente"
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method get_score_str = string_of_int score
 		method add_score = score <- score + 1  
-		method get_phase = phase 
 		method get_nom = nom
 		method get_nom_and_coord = nom^":"^"X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
-		method change_phase p = phase = p
 	end
 
 
@@ -32,8 +29,9 @@ class session (list_usrs:user list)=
 		val mutable objectifX = Random.float 100.0
 		val mutable objectifY = Random.float 100.0
 		val mutable win_cap = 2
-
+		val mutable phase = "attente"
 		method connect x = users <- (x:user)::users
+		method deconnect nom_usr = users <- List.filter (fun u -> not (String.equal u#get_nom nom_usr)) users
 		method size_users = List.length users
 		method get_usrs = users 
 		method get_coord_objectif = "X"^(string_of_float objectifX)^"Y"^(string_of_float objectifY)
@@ -45,6 +43,8 @@ class session (list_usrs:user list)=
 						| [] -> ()
 					in liste_to_str l2; 
 					!s;
+		method session_lauched = phase <- "jeu" 
+		method get_phase = phase 
 					
 									
 			 (* (List.fold_right (fun u acc-> (u#get_nom^acc) ) users "/" ) *)
