@@ -31,6 +31,7 @@ let signal_tout_sauf nomUsr message=
 			output_string outchan (message^"/"^nomUsr^"\n");flush outchan) !list_usr_sock;;
 	
 let service_projet socket = 
+	let client_connecte = ref "no connect" in 
 	let inchan = Unix.in_channel_of_descr socket
 	and outchan = Unix.out_channel_of_descr socket
 	in 
@@ -46,6 +47,7 @@ let service_projet socket =
 								else (
 
 								let usr = new user nom in (
+									client_connecte:=nom;
 									append list_usr_noms nom;
 									append list_usr_sock (nom,socket);
 									append list_usr usr;
@@ -75,9 +77,15 @@ let service_projet socket =
 								and coordY = String.sub coord (index_Y+1) (len-index_Y-1) in 
 								print_endline coordX;
 								print_endline coordY;
+								let nom = !client_connecte and posX = float_of_string coordX and posY = float_of_string coordY in 
+									let usr = session_courant#get_usr_par_nom nom in
+								(usr#set_pos posX posY;  (*mise à jour la position du véhicule*)
+								if(session_courant#touche_obj posX posY) (*détecter si il a touché objectif*)
+								then usr#add_score; session_courant#genere_new_obj; session_courant#send_new_obj
+								)
 
-							)
-				
+							);
+		if (session_courant#est_fin_session) then session_courant#send_scores_finaux;
 		done;;
 										
 let main () =

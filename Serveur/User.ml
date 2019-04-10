@@ -5,6 +5,17 @@ let get_Scores user =
 	(user#get_nom)^":"^(string_of_int user#get_score)
 
 
+let rec find_usr nom users = 
+match users with
+[]->failwith "user no found"
+|a::l-> if (String.equal nom a#get_nom) then a
+		 else find_usr nom l 
+
+
+let rec s_fin list_score win_cap = 
+match list_score with
+[]->false
+|a::l-> if a >= win_cap then true else s_fin l win_cap
 
 let print_coords l_users = 
 	let rec print s =
@@ -27,12 +38,13 @@ class user  (n:string)=
 		method get_nom = nom
 		method get_nom_and_coord = nom^":"^"X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method gagne =  vainqueur <- true
+		method set_pos x y = coordX <-  x ;coordY <- y
 	end
 
 
 class session (list_usrs:user list)= 
 	object(self)
-		val obj_radius = 5
+		val obj_radius = 5.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
 		val mutable objectifX = Random.float 100.0
@@ -68,10 +80,19 @@ class session (list_usrs:user list)=
 		method session_lauched = phase <- "jeu" 
 		method session_arrete = phase <- "attente"
 		method get_phase = phase 
-		method genere_nouvel_objectif = objectifX <- Random.float 100.0;
-										objectifY <- Random.float 100.0
+		method genere_new_obj = objectifX <- Random.float 100.0; objectifY <- Random.float 100.0
+		method send_new_obj = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("NEWOBJ/"^self#get_coord_objectif^"/"^self#get_list_scores^"\n");flush outchan) 
+			list_usr_sock ;
 					
-			
+		method get_usr_par_nom nom = find_usr nom users;
+		method touche_obj posX posY =  let distance = sqrt(((posX -. objectifX)*.(posX -. objectifX))+.((posY-. objectifY)*.(posY-.objectifY)))
+					  in if distance <= obj_radius then true else false ;
+	
+		method est_fin_session = let l_scores = List.map (fun u -> u#get_score) users in s_fin l_scores win_cap 
+		method send_scores_finaux =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("WINNER/"^self#get_list_scores^"\n");flush outchan) 
+			list_usr_sock ;	
 		(* method set_newpos coordX coordY = 						 *)
 			 (* (List.fold_right (fun u acc-> (u#get_nom^acc) ) users "/" ) *)
 				
