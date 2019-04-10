@@ -26,7 +26,7 @@ let rec get_list_coords  l_usr=
 let synchronisation s = 
 	
 	while true do
-		Thread.delay 1.0;
+		Thread.delay (1.0/.server_tickrate);
 		List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("TICK/"^s#get_list_coords^"\n");flush outchan) 
 			s#get_usrs_socks;
@@ -44,7 +44,7 @@ let lanche_session s =
 
 	
 		
-	(* let t = Thread.create synchronisation s in () *)
+	let t = Thread.create synchronisation s in () 
 	
 
 	
