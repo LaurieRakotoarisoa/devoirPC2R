@@ -34,7 +34,7 @@ public class InterfaceClient extends Application{
 	
 	protected Arene arene;
 	
-	public static void main (String [] args) {
+	public static void main(String [] args) {
 		Application.launch(InterfaceClient.class);
 	}
 

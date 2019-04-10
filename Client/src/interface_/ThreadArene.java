@@ -4,10 +4,11 @@ import java.io.IOException;
 
 public class ThreadArene extends Thread{
 	private Arene a;
-	private int tickrate;
+	private double tickrate;
 	
-	public ThreadArene(Arene a,int t) {
+	public ThreadArene(Arene a,double t) {
 		this.a = a;
+		tickrate = t;
 	}
 	public void run() {
 		
@@ -18,7 +19,7 @@ public class ThreadArene extends Thread{
 				break;
 			}
 			try {
-				Thread.sleep((int)((1/100.0)*1000));
+				Thread.sleep((int)((1/tickrate)*1000));
 			} catch (InterruptedException e) {
 				break;
 			}

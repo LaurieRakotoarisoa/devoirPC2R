@@ -2,6 +2,8 @@ package interface_;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import client.Client;
 import javafx.event.EventHandler;
@@ -96,6 +98,12 @@ public class Arene{
 		drawArene();
 		drawObjectif();
 		c.getGraphicsContext2D().drawImage(joueur,client.getPosition().getX()%width, client.getPosition().getY()%height);
+		c.getGraphicsContext2D().setFill(Color.RED);
+		Map<String,Client.Coords> others = new HashMap<String,Client.Coords>(client.getPlayers());
+		for(String j : others.keySet()) {
+			c.getGraphicsContext2D().fillOval(others.get(j).getX(), others.get(j).getY(), 15.0, 15.0);
+		}
+		
 		
 	}
 	

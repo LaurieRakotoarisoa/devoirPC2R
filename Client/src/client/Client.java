@@ -22,9 +22,11 @@ public class Client {
 	private final double turnit=1;
 	private final double thrustit=1;
 	
+	private ThreadJeu jeu;
+	
 	private String phase; //phase de la session courante
 	
-	private int tickrate = 100;
+	private double tickrate = 100.0;
 	private Map<String,Coords> players = new HashMap<String, Client.Coords>(); //Nom des adversaires et leur position
 	private Map <String,Integer> scores = new HashMap<String, Integer>(); // scores des adversaires
 	
@@ -66,6 +68,8 @@ public class Client {
 		outchan = new DataOutputStream(s.getOutputStream());
 		my_speed.setX(0);
 		my_speed.setY(0);
+		
+		jeu = new ThreadJeu(this);
 	}
 	
 	public boolean connect(String nom) throws IOException {
@@ -83,16 +87,14 @@ public class Client {
 		}
 		this.nom = nom;
 		
-		/*String [] scores = splitted[2].split("\\|");
-		System.out.println("connect"+splitted[2]);
+		String [] scores = splitted[2].split("\\|");
 		String score;
 		String name;
 		for(String sc : scores) {
-			System.out.println(sc);
 			name = sc.split("\\:")[0];
 			score = sc.split("\\:")[1];
 			this.scores.put(name, Integer.parseInt(score));
-		}*/
+		}
 		
 		return true;
 	}
@@ -100,7 +102,6 @@ public class Client {
 	public void attenteDebut() throws IOException {
 		String line;
 		while(phase.equals("attente")) {
-			System.out.println("boucle");
 			line = inchan.readLine();
 			String [] splitted = line.split("\\/");
 			switch(splitted[0]) {
@@ -123,7 +124,9 @@ public class Client {
 			default : break;
 			}
 		}
-		new ThreadJeu(this).start();
+		if(!jeu.isAlive()) {
+			jeu.start();
+		}
 	}
 	
 	public synchronized void changePos() throws IOException {
@@ -184,14 +187,17 @@ public class Client {
 		return obj_coords;
 	}
 	
-	public int getTickRate() {
+	public double getTickRate() {
 		return tickrate;
 	}
 	
-	public void jeu() throws IOException {
+	public void jeu() throws IOException, RestartSessionException {
 		String line;
 		line = inchan.readLine();
 		String [] splitted = line.split("\\/");
+		
+		String [] scores;
+		
 		switch(splitted[0]) {
 		
 		
@@ -200,28 +206,45 @@ public class Client {
 					String user = p.split("\\:")[0];
 					String coords = p.split("\\:")[1];
 					if(user.equals(nom)) {
-						my_coords.setCoords(coords);
 						continue;
 					}
 					if(!this.players.containsKey(p)) {
 						this.players.put(p, new Coords());
 					}
 					this.players.get(p).setCoords(coords);
-				} sendPos(); break;
+				} 
+				sendPos(); break;
 				
 			case "NEWOBJ" : obj_coords.setCoords(splitted[1]); 
-							String [] scores = splitted[2].split("\\|");
+							scores = splitted[2].split("\\|");
 							for(String name_score : scores) {
 								String name = name_score.split("\\:")[0];
 								String score = name_score.split("\\:")[1];
 								this.scores.put(name, Integer.parseInt(score));
 							}
 							break;
+							
+			case "WINNER" : scores = splitted[1].split("\\|");
+							System.out.println("Scores finaux session");
+							for(String s : scores) {
+								System.out.println(s.split("\\:")[0]+" "+s.split("\\:")[1]);
+							}
+							for(String j : this.scores.keySet()) {
+								this.scores.remove(j);
+							}
+							phase ="attente";
+							
+							throw new RestartSessionException("Fin de session  -> relancement");
+			
+			case "NEWPLAYER" : ajoutJoueur(splitted[1]); break;
+			
+			case "PLAYERLEFT" : retraitJoueur(splitted[1]); break;
+							
 		}
 		
 		
-
-		
 	}
+	
+	
 
 }

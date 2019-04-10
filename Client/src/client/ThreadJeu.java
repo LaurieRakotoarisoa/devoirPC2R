@@ -17,8 +17,17 @@ public class ThreadJeu extends Thread{
 			try {
 				client.jeu();
 			} catch (IOException e) {
-				System.out.println("pb thread de jeu");
 				break;
+			} catch (RestartSessionException e) {
+				
+				try {
+					System.out.println("Nouvelle session");
+					client.attenteDebut();
+					
+				} catch (IOException e1) {
+					
+					System.out.println("Erreur redemarrage client");
+				}
 			}
 		}
 		
