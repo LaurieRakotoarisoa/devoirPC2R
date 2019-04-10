@@ -93,7 +93,9 @@ class session (list_usrs:user list)=
 		method send_scores_finaux =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("WINNER/"^self#get_list_scores^"\n");flush outchan) 
 			list_usr_sock ;	
-		(* method set_newpos coordX coordY = 						 *)
-			 (* (List.fold_right (fun u acc-> (u#get_nom^acc) ) users "/" ) *)
+	
+		method send_coords = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("TICK/"^self#get_list_coords^"\n");flush outchan) 
+			list_usr_sock
 				
 	end		 

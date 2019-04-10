@@ -79,10 +79,12 @@ let service_projet socket =
 								print_endline coordY;
 								let nom = !client_connecte and posX = float_of_string coordX and posY = float_of_string coordY in 
 									let usr = session_courant#get_usr_par_nom nom in
-								(usr#set_pos posX posY;  (*mise à jour la position du véhicule*)
-								if(session_courant#touche_obj posX posY) (*détecter si il a touché objectif*)
-								then usr#add_score; session_courant#genere_new_obj; session_courant#send_new_obj
-								)
+								(
+									usr#set_pos posX posY; (*mise à jour la position du véhicule*)
+									if(session_courant#touche_obj posX posY) (*détecter si il a touché objectif*)
+									then usr#add_score; session_courant#genere_new_obj; session_courant#send_new_obj
+			
+								);
 
 							);
 		if (session_courant#est_fin_session) then session_courant#send_scores_finaux;
