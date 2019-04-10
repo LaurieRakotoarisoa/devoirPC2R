@@ -16,6 +16,7 @@ let compte_a_rebours () =
 
 (* la frequence de rafraichissement reseau *)
 let server_tickrate = 10.0
+let refresh_tickrate = 100.0
 
 let rec get_list_coords  l_usr= 
 	match l_usr with
@@ -23,14 +24,12 @@ let rec get_list_coords  l_usr=
 	|e::l -> print_endline (e # get_nom_and_coord);
 			get_list_coords l 
 		
-let synchronisation s = 
-	
+let tick s = 
 	while true do
 		Thread.delay (1.0/.server_tickrate);
-		List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
-			output_string outchan ("TICK/"^s#get_list_coords^"\n");flush outchan) 
-			s#get_usrs_socks;
+		s#send_coords;
 	done
+
 	
 
 
@@ -44,13 +43,9 @@ let lanche_session s =
 
 	
 		
-	let t = Thread.create synchronisation s in () 
+	let t = Thread.create tick s in () 
 	
 
-	
-	(* get_list_coords (s#get_usrs);
-	print_endline ("nombre de usr dans la session est "^(string_of_int (s # size_users)));
- *)
 	
 
 
