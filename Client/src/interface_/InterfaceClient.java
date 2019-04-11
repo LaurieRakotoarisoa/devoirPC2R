@@ -33,6 +33,7 @@ import javafx.stage.Stage;
 public class InterfaceClient extends Application{
 	
 	protected Arene arene;
+	protected String name;
 	
 	public static void main(String [] args) {
 		Application.launch(InterfaceClient.class);
@@ -40,7 +41,7 @@ public class InterfaceClient extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		Client c =new Client(new Socket("127.0.0.1",12345));
+		Client c = new Client(new Socket("127.0.0.1",12345));
 		GridPane grid = new GridPane();
 		grid.setHgap(20);
 		grid.setVgap(20);
@@ -63,7 +64,7 @@ public class InterfaceClient extends Application{
 		grid.add(userText, 3, 5);
 		
 		
-		Button connexion = new Button("Connexion");
+		Button connexion = new Button(name);
 		connexion.setOnAction(new EventHandler<ActionEvent>() {
 
             public void handle(ActionEvent event) {

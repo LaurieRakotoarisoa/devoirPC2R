@@ -89,12 +89,10 @@ public class Arene{
 		GraphicsContext gc = c.getGraphicsContext2D();
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, width, height);
-		gc.setFill(Color.BURLYWOOD);
-		gc.fillOval(0, 0, width, height);
 	}
 	
 	public void refresh() throws IOException {
-		client.changePos();
+		client.changePos(width,height);
 		drawArene();
 		drawObjectif();
 		c.getGraphicsContext2D().drawImage(joueur,client.getPosition().getX()%width, client.getPosition().getY()%height);

@@ -28,8 +28,8 @@ class user  (n:string)=
 	object 
 		val mutable nom = n 
 		val mutable score = 0
-		val mutable coordX = Random.float 100.0
-		val mutable coordY = Random.float 100.0
+		val mutable coordX = Random.float 900.
+		val mutable coordY = Random.float 400.0
 		val mutable vitesse = (0,0)
 		val mutable vainqueur = false
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
@@ -44,12 +44,12 @@ class user  (n:string)=
 
 class session (list_usrs:user list)= 
 	object(self)
-		val obj_radius = 5.
+		val obj_radius = 20.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
-		val mutable objectifX = Random.float 100.0
-		val mutable objectifY = Random.float 100.0
-		val mutable win_cap = 2
+		val mutable objectifX = Random.float 900.0
+		val mutable objectifY = Random.float 400.0
+		val mutable win_cap = 5
 		val mutable phase = "attente"
 		method connect x nom_socket = users <- (x:user)::users ;
 								list_usr_sock <- (nom_socket :string *Unix.file_descr)::list_usr_sock
@@ -80,7 +80,7 @@ class session (list_usrs:user list)=
 		method session_lauched = phase <- "jeu" 
 		method session_arrete = phase <- "attente"
 		method get_phase = phase 
-		method genere_new_obj = objectifX <- Random.float 100.0; objectifY <- Random.float 100.0
+		method genere_new_obj = objectifX <- Random.float 900.0; objectifY <- Random.float 400.0
 		method send_new_obj = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("NEWOBJ/"^self#get_coord_objectif^"/"^self#get_list_scores^"\n");flush outchan) 
 			list_usr_sock ;

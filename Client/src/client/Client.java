@@ -129,14 +129,14 @@ public class Client {
 		}
 	}
 	
-	public synchronized void changePos() throws IOException {
-		my_coords.setX(my_coords._x+my_speed._x);
-		my_coords.setY(my_coords._y+my_speed._y);
+	public synchronized void changePos(int width,int height) throws IOException {
+		my_coords.setX((my_coords._x+my_speed._x+width)%width);
+		my_coords.setY((my_coords._y+my_speed._y+height)%height);
 		
 	}
 	
 	public void sendPos() throws IOException {
-		String s = "NEWPOS/"+my_coords;
+		String s = "NEWPOS/"+my_coords+"\n";
 		outchan.writeBytes(s);
 		outchan.flush();
 	}
@@ -194,6 +194,7 @@ public class Client {
 	public void jeu() throws IOException, RestartSessionException {
 		String line;
 		line = inchan.readLine();
+		System.out.println(line);
 		String [] splitted = line.split("\\/");
 		
 		String [] scores;
@@ -213,7 +214,7 @@ public class Client {
 					}
 					this.players.get(p).setCoords(coords);
 				} 
-				sendPos(); break;
+				sendPos();  break;
 				
 			case "NEWOBJ" : obj_coords.setCoords(splitted[1]); 
 							scores = splitted[2].split("\\|");
@@ -239,6 +240,8 @@ public class Client {
 			case "NEWPLAYER" : ajoutJoueur(splitted[1]); break;
 			
 			case "PLAYERLEFT" : retraitJoueur(splitted[1]); break;
+			
+			default : break;
 							
 		}
 		
