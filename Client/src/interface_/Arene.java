@@ -30,12 +30,12 @@ public class Arene{
 	
 	private Image joueur = new Image(new File("images/IMG_0094.GIF").toURI().toString(),50,50,false,false);
 	
-	public Arene(Client client,int h, int w) {
+	public Arene(Client client,int h, int w, Stage s) {
+		arene = s;
 		this.client = client;
 		
 		height = h;
 		width = w;
-		arene = new Stage();
 		arene.setResizable(false);
 		
 		nodes = new Group();
@@ -95,11 +95,14 @@ public class Arene{
 		client.changePos(width,height);
 		drawArene();
 		drawObjectif();
-		c.getGraphicsContext2D().drawImage(joueur,client.getPosition().getX()%width, client.getPosition().getY()%height);
+		c.getGraphicsContext2D().setFill(Color.YELLOW);
+		c.getGraphicsContext2D().fillOval(client.getPosition().getX(), client.getPosition().getY(), 15.0, 15.0);
 		c.getGraphicsContext2D().setFill(Color.RED);
 		Map<String,Client.Coords> others = new HashMap<String,Client.Coords>(client.getPlayers());
 		for(String j : others.keySet()) {
-			c.getGraphicsContext2D().fillOval(others.get(j).getX(), others.get(j).getY(), 15.0, 15.0);
+			if(!j.equals(client.nom)) {
+				c.getGraphicsContext2D().fillOval(others.get(j).getX(), others.get(j).getY(), 15.0, 15.0);
+			}
 		}
 		
 		
