@@ -39,6 +39,8 @@ class user  (n:string)=
 		method get_nom_and_coord = nom^":"^"X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method gagne =  vainqueur <- true
 		method set_pos x y = coordX <-  x ;coordY <- y
+		method reset_pos =  coordX <-  Random.float 900. ;coordY <- Random.float 400.0
+		method reset_score = score <- 0
 	end
 
 
@@ -49,7 +51,7 @@ class session (list_usrs:user list)=
 		val mutable list_usr_sock = []
 		val mutable objectifX = Random.float 900.0
 		val mutable objectifY = Random.float 400.0
-		val mutable win_cap = 5
+		val mutable win_cap = 2
 		val mutable phase = "attente"
 		method connect x nom_socket = users <- (x:user)::users ;
 								list_usr_sock <- (nom_socket :string *Unix.file_descr)::list_usr_sock
@@ -77,8 +79,8 @@ class session (list_usrs:user list)=
 						| [] -> ()
 					in liste_to_str l2; 
 					!s;
-		method session_lauched = phase <- "jeu" 
-		method session_arrete = phase <- "attente"
+		method session_lauched = print_endline "La session commence !";phase <- "jeu" ; 
+								 self#send_session
 		method get_phase = phase 
 		method genere_new_obj = objectifX <- Random.float 900.0; objectifY <- Random.float 400.0
 		method send_new_obj = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
@@ -90,12 +92,21 @@ class session (list_usrs:user list)=
 					  in if distance <= obj_radius then true else false ;
 	
 		method est_fin_session = let l_scores = List.map (fun u -> u#get_score) users in s_fin l_scores win_cap 
-		method send_scores_finaux =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
-			output_string outchan ("WINNER/"^self#get_list_scores^"\n");flush outchan) 
-			list_usr_sock ;	
+		method fin_de_session = print_endline "La session est fini !" ;
+							List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+							output_string outchan ("WINNER/"^self#get_list_scores^"\n");flush outchan) 
+							list_usr_sock ;	
+							phase <-"attente" ;
+							self#reset
 	
 		method send_coords = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("TICK/"^self#get_list_coords^"\n");flush outchan) 
 			list_usr_sock
+		
+		method send_session = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("SESSION/"^self#get_list_coords^"/"^self#get_coord_objectif^"\n");flush outchan) 
+			list_usr_sock
+
+		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users
 				
 	end		 

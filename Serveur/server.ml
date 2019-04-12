@@ -71,12 +71,10 @@ let service_projet socket =
 									)
 								)
 							else if (String.equal h "NEWPOS") then (
-								let coord = (List.hd l) in print_endline coord ;
+								let coord = (List.hd l) in 
 								let len = String.length coord and index_Y = String.index coord 'Y' in 
 								let coordX = String.sub coord 1 (index_Y-1) 
 								and coordY = String.sub coord (index_Y+1) (len-index_Y-1) in 
-								print_endline coordX;
-								print_endline coordY;
 								let nom = !client_connecte and posX = float_of_string coordX and posY = float_of_string coordY in 
 									let usr = session_courant#get_usr_par_nom nom in
 								(
@@ -87,7 +85,7 @@ let service_projet socket =
 								);
 
 							);
-		if (session_courant#est_fin_session) then session_courant#send_scores_finaux;
+		if (session_courant#est_fin_session) then session_courant#fin_de_session
 		done;;
 										
 let main () =

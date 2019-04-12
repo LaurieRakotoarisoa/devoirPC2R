@@ -34,17 +34,14 @@ let tick s =
 
 
 let lanche_session s = 
-	print_endline "La session commence !";
+	
 	s#session_lauched;
-
-	List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
-			output_string outchan ("SESSION/"^s#get_list_coords^"/"^s#get_coord_objectif^"\n");flush outchan) 
-			s#get_usrs_socks ;
-
 	
-		
-	let t = Thread.create tick s in () 
-	
+	let t = Thread.create tick s in 
+
+	while true do 
+		if  s#est_fin_session then Thread.kill t ;
+	done 
 
 	
 
