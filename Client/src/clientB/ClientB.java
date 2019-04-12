@@ -1,4 +1,4 @@
-package client;
+package clientB;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -8,7 +8,10 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Client {
+import client.RestartSessionException;
+import client.ThreadJeu;
+
+public class ClientB{
 	
 	public String nom;
 	private Socket service;
@@ -18,16 +21,16 @@ public class Client {
 	private Coords obj_coords = new Coords(); //Coordonnées de l'objectif
 	private Coords my_coords = new Coords(); //Coordonnées du client 
 	private Coords my_speed = new Coords(); // Vecteur vitesse
-	private double angle = 0; // direction angle
 	private final double turnit=1;
 	private final double thrustit=1;
-	
-	private ThreadJeu jeu;
+	private double rotation = 0;
+	private int poussees = 0;
+	private double server_tickrate;
 	
 	private String phase; //phase de la session courante
 	
 	private double tickrate = 100.0;
-	private Map<String,Coords> players = new HashMap<String, Client.Coords>(); //Nom des adversaires et leur position
+	private Map<String,Coords> players = new HashMap<String, ClientB.Coords>(); //Nom des adversaires et leur position
 	private Map <String,Integer> scores = new HashMap<String, Integer>(); // scores des adversaires
 	
 	public class Coords{ //Classe interne pour la gestion des coordonnées de joueurs
@@ -62,14 +65,13 @@ public class Client {
 	}
 	
 	
-	public Client(Socket s) throws IOException {
+	public ClientB(Socket s) throws IOException {
 		this.service = s;
 		inchan = new BufferedReader(new InputStreamReader(service.getInputStream()));
 		outchan = new DataOutputStream(s.getOutputStream());
 		my_speed.setX(0);
 		my_speed.setY(0);
 		
-		jeu = new ThreadJeu(this);
 	}
 	
 	public boolean connect(String nom) throws IOException {
@@ -124,9 +126,6 @@ public class Client {
 			default : break;
 			}
 		}
-		if(!jeu.isAlive()) {
-			jeu.start();
-		}
 	}
 	
 	public synchronized void changePos(int width,int height) throws IOException {
@@ -135,10 +134,11 @@ public class Client {
 		
 	}
 	
-	public void sendPos() throws IOException {
-		String s = "NEWPOS/"+my_coords+"\n";
+	public void sendCommands() throws IOException {
+		String s = "NEWCOM/A"+rotation+"T"+poussees+"/\n";
 		outchan.writeBytes(s);
 		outchan.flush();
+		
 	}
 	
 	public void ajoutJoueur(String name) {
@@ -158,20 +158,15 @@ public class Client {
 	}
 	
 	public synchronized void clock() {
-		angle = angle - turnit;
-		my_speed.setX(thrustit*Math.cos(angle));
-		my_speed.setY(thrustit*Math.sin(angle));
+		rotation = rotation - turnit;
 	}
 	
-	public synchronized void anticlock() {
-		angle = angle +turnit;
-		my_speed.setX(thrustit*Math.cos(angle));
-		my_speed.setY(thrustit*Math.sin(angle));
+	public synchronized void anticlock() {		
+		rotation = rotation+ turnit;
 	}
 	
 	public synchronized void thrust() {
-		my_speed.setX(my_speed._x + thrustit*Math.cos(angle));
-		my_speed.setY(my_speed._y + thrustit*Math.sin(angle));
+		poussees+= thrustit;
 	}
 	
 	
@@ -191,29 +186,39 @@ public class Client {
 		return tickrate;
 	}
 	
+	public double getServerTickRate() {
+		return server_tickrate;
+	}
+	
+	
+	
 	public void jeu() throws IOException, RestartSessionException {
 		String line;
 		line = inchan.readLine();
 		String [] splitted = line.split("\\/");
 		
+		String command = splitted[0];
+		
 		String [] scores;
 		
-		switch(splitted[0]) {
+		switch(command) {
 		
 		
-			case "TICK" : String [] players = splitted[1].split("\\|");
-				for(String p : players) {
-					String user = p.split("\\:")[0];
-					String coords = p.split("\\:")[1];
-					if(user.equals(nom)) {
-						continue;
+			case "TICK" : 
+				String [] vcoords = splitted[1].split("\\|");
+				for(String vc : vcoords) {
+					String name = vc.split("\\:")[0];
+					String data = vc.split("\\:")[1];
+					if(!players.containsKey(name)) {
+						players.put(name, new Coords());
 					}
-					if(!this.players.containsKey(p)) {
-						this.players.put(p, new Coords());
-					}
-					this.players.get(p).setCoords(coords);
-				} 
-				sendPos();  break;
+					Coords c = players.get(name);
+					
+					String vx ="";
+					String vy = "";
+					String theta = "";
+					
+				}
 				
 			case "NEWOBJ" : obj_coords.setCoords(splitted[1]); 
 							scores = splitted[2].split("\\|");
@@ -244,7 +249,5 @@ public class Client {
 		
 		
 	}
-	
-	
 
 }

@@ -6,25 +6,16 @@ import java.io.IOException;
 import java.net.Socket;
 
 import client.Client;
-import client.ThreadJeu;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -64,7 +55,7 @@ public class InterfaceClient extends Application{
 		grid.add(userText, 3, 5);
 		
 		
-		Button connexion = new Button(name);
+		Button connexion = new Button("connexion");
 		connexion.setOnAction(new EventHandler<ActionEvent>() {
 
             public void handle(ActionEvent event) {
@@ -77,8 +68,7 @@ public class InterfaceClient extends Application{
 		            	   a.setContentText("Attente début de session");
 		            	   a.show();
 						   c.attenteDebut();
-						   primaryStage.hide();
-						   arene = new Arene(c,400,900);
+						   arene = new Arene(c,400,900,primaryStage);
 						   
 						   
 						  

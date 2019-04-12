@@ -44,7 +44,7 @@ class user  (n:string)=
 
 class session (list_usrs:user list)= 
 	object(self)
-		val obj_radius = 20.
+		val obj_radius = 30.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
 		val mutable objectifX = Random.float 900.0

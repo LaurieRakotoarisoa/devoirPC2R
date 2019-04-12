@@ -12,7 +12,6 @@ public class ThreadJeu extends Thread{
 	
 	@Override
 	public void run() {
-		System.out.println("thread jeu running");
 		while(true) {
 			try {
 				client.jeu();
@@ -27,6 +26,7 @@ public class ThreadJeu extends Thread{
 				} catch (IOException e1) {
 					
 					System.out.println("Erreur redemarrage client");
+					break;
 				}
 			}
 		}
