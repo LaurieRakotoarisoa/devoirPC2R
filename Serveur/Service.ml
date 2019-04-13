@@ -30,9 +30,14 @@ let tick s =
 		
 			Thread.delay (1.0/.server_tickrate);
 			s#send_coords;
+			(* print_endline s#get_list_coords; *)
 			(* print_endline "tick" *)
-		
+	done
 
+let deplacement_vehicules s =
+	while  (String.equal s#get_phase "jeu" ) do
+		Thread.delay (1.0/.refresh_tickrate);
+		s#deplacement_vehicules;		
 	done
 
 	
@@ -42,7 +47,7 @@ let lanche_session s =
 	
 	s#session_lauched;
 	
-	let t = Thread.create tick s in ()
+	let _ = Thread.create tick s and _ = Thread.create deplacement_vehicules s in ()
 
 	
 

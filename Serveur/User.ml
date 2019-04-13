@@ -25,13 +25,16 @@ let print_coords l_users =
 	in print ""
 
 class user  (n:string)=
-	object 
+	object(self)
 		val mutable nom = n 
 		val mutable score = 0
 		val mutable coordX = Random.float 900.
 		val mutable coordY = Random.float 400.0
-		val mutable vitesse = (0,0)
+		val mutable vitesse = (0.,0.)
 		val mutable vainqueur = false
+		val mutable angle = 0.0
+		val mutable turnit = 1.0
+		val mutable thrustit = 1.0
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method get_score = score
 		method add_score = score <- score + 1  
@@ -41,6 +44,19 @@ class user  (n:string)=
 		method set_pos x y = coordX <-  x ;coordY <- y
 		method reset_pos =  coordX <-  Random.float 900. ;coordY <- Random.float 400.0
 		method reset_score = score <- 0
+	
+		method rotation a = angle <- angle +. a;
+					vitesse <- (thrustit*.(cos angle)),(thrustit*.(sin angle))
+		method thrust = vitesse<- (let vx,vy = vitesse in 
+					(vx +. thrustit *. (cos angle),vy +. thrustit*.(sin angle)) )
+		method deplacer = let vx,vy = vitesse in 
+						 coordX <- coordX +. vx ;
+						 coordY <- coordY +. vy
+		method gerer_cmd a (t:int) = self#rotation a ;
+									for i = t downto 1 do
+										self#thrust
+									done
+
 	end
 
 
@@ -108,5 +124,7 @@ class session (list_usrs:user list)=
 			list_usr_sock
 
 		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users
+		method  deplacement_vehicules =  List.iter (fun u-> u#deplacer ) users
+
 				
 	end		 

@@ -84,7 +84,19 @@ let service_projet socket =
 			
 								);
 
-							);
+							)else if(String.equal h "NEWCOM") then (
+								let cmd = (List.hd l) in let len = String.length cmd and 
+								index_T = String.index cmd 'T' in 
+								let cmd_a = String.sub cmd 1 (index_T-1) 
+								and cmd_t = String.sub cmd (index_T+1) (len-index_T-1) in 
+								let nom = !client_connecte and a = float_of_string cmd_a and t = int_of_string cmd_t in
+									let usr = session_courant#get_usr_par_nom nom in
+									( usr#gerer_cmd a t )
+
+
+							)
+
+							;
 		if (session_courant#est_fin_session) then ( session_courant#fin_de_session;
 												let t = Thread.create compte_a_rebours () in Thread.join t;
 												lanche_session session_courant 
