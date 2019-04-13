@@ -25,9 +25,14 @@ let rec get_list_coords  l_usr=
 			get_list_coords l 
 		
 let tick s = 
-	while true do
-		Thread.delay (1.0/.server_tickrate);
-		s#send_coords;
+	while (String.equal s#get_phase "jeu" ) do
+
+		
+			Thread.delay (1.0/.server_tickrate);
+			s#send_coords;
+			(* print_endline "tick" *)
+		
+
 	done
 
 	
@@ -37,11 +42,7 @@ let lanche_session s =
 	
 	s#session_lauched;
 	
-	let t = Thread.create tick s in 
-
-	while true do 
-		if  s#est_fin_session then Thread.kill t ;
-	done 
+	let t = Thread.create tick s in ()
 
 	
 

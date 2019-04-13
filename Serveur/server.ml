@@ -85,7 +85,10 @@ let service_projet socket =
 								);
 
 							);
-		if (session_courant#est_fin_session) then session_courant#fin_de_session
+		if (session_courant#est_fin_session) then ( session_courant#fin_de_session;
+												let t = Thread.create compte_a_rebours () in Thread.join t;
+												lanche_session session_courant 
+											)
 		done;;
 										
 let main () =
