@@ -29,9 +29,11 @@ let tick s =
 
 		
 			Thread.delay (1.0/.server_tickrate);
-			s#send_coords;
+			(* s#send_coords; *)
+			s#send_vcoords;
+
+			(* print_endline s#get_list_vcoords; *)
 			(* print_endline s#get_list_coords; *)
-			(* print_endline "tick" *)
 	done
 
 let deplacement_vehicules s =

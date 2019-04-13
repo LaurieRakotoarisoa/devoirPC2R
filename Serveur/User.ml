@@ -4,6 +4,8 @@ let get_Coords user =
 let get_Scores user =
 	(user#get_nom)^":"^(string_of_int user#get_score)
 
+let get_Vcoords user =
+	(user#get_nom)^":"^(user#get_vcoords)
 
 let rec find_usr nom users = 
 match users with
@@ -56,6 +58,8 @@ class user  (n:string)=
 									for i = t downto 1 do
 										self#thrust
 									done
+		method  get_vcoords = let vx,vy = vitesse in 
+			self#get_coord ^ "VX"^(string_of_float vx)^"VY"^(string_of_float vy)^"T"^(string_of_float angle)
 
 	end
 
@@ -87,6 +91,14 @@ class session (list_usrs:user list)=
 					in liste_to_str l2; 
 					!s;
 
+		method get_list_vcoords = let l =  List.map get_Vcoords users in
+					let s = ref (List.hd l) and l2 = List.tl l in
+						let rec liste_to_str liste =
+						match liste with
+						u::tl -> s := !s^"|"^u; liste_to_str tl;
+						| [] -> ()
+					in liste_to_str l2; 
+					!s;
 		method get_list_scores = let l = List.map get_Scores users in
 					let s = ref (List.hd l) and l2 = List.tl l in
 						let rec liste_to_str liste =
@@ -119,6 +131,10 @@ class session (list_usrs:user list)=
 			output_string outchan ("TICK/"^self#get_list_coords^"\n");flush outchan) 
 			list_usr_sock
 		
+		method send_vcoords = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("TICK/"^self#get_list_vcoords^"\n");flush outchan) 
+			list_usr_sock
+
 		method send_session = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("SESSION/"^self#get_list_coords^"/"^self#get_coord_objectif^"\n");flush outchan) 
 			list_usr_sock
