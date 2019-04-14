@@ -41,21 +41,37 @@ public class InterfaceClient extends Application{
 		grid.setVgap(20);
 		grid.setPadding(new Insets(25,25,25,25));
 		
-		Scene scene = new Scene(grid, 500,500);
+		Scene scene = new Scene(grid, 600,600);
 		primaryStage.setResizable(false);
 		primaryStage.setScene(scene);
 		
 		
 		Text scenetitle = new Text("Welcome");
-		scenetitle.setFont(Font.font(40));
-		grid.add(scenetitle, 3, 1);
+		scenetitle.setFont(Font.font(30));
+		grid.add(scenetitle, 4, 1);
+		
+		
+		
+		Label AdresseIP = new Label("AdresseIP");
+		AdresseIP.setFont(Font.font(10));
+		grid.add(AdresseIP,0,3);
+		
+		TextField AdressText = new TextField();
+		grid.add(AdressText,4,3);
 		
 		Label user = new Label("User");
-		user.setFont(Font.font(20));
+		user.setFont(Font.font(10));
 		grid.add(user,0,5);
 		
 		TextField userText = new TextField();
-		grid.add(userText, 3, 5);
+		grid.add(userText, 4, 5);
+		
+		Label port = new Label("Port");
+		port.setFont(Font.font(10));
+		grid.add(port,0,4);
+		
+		TextField portText = new TextField();
+		grid.add(portText, 4, 4);
 		
 		
 		Button connexion = new Button("connexion");
@@ -95,7 +111,7 @@ public class InterfaceClient extends Application{
 		
 		
 		
-		grid.add(connexion, 4, 5);
+		grid.add(connexion, 5, 5);
 		
 		primaryStage.show();
 		
