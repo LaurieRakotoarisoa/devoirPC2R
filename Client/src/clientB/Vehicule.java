@@ -9,8 +9,8 @@ public class Vehicule {
 	private int pousse = 0;
 	private double rayon;
 	private double myMove = 0;
-	private final double turnit = 0.43;
-	private final double thrustit = 5;
+	private final double turnit = 0.1;
+	private final double thrustit = 0.1;
 	
 	public Vehicule(double rayon) {
 		this.rayon = rayon;

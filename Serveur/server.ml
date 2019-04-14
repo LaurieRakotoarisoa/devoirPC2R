@@ -81,7 +81,8 @@ let service_projet socket =
 								(
 									usr#set_pos posX posY; (*mise à jour la position du véhicule*)
 									if(session_courant#touche_obj posX posY) (*détecter si il a touché objectif*)
-									then (usr#add_score; session_courant#genere_new_obj; session_courant#send_new_obj)
+									then (usr#add_score; session_courant#genere_new_obj; session_courant#send_new_obj);
+									session_courant#detect_touche_obstacles posX posY usr
 			
 								);
 

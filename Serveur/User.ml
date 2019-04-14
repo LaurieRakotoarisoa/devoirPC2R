@@ -38,8 +38,8 @@ class user  (n:string)=
 		val mutable vitesse = (0.,0.)
 		val mutable vainqueur = false
 		val mutable angle = 0.0
-		val mutable turnit = 1.0
-		val mutable thrustit = 1.0
+		val mutable turnit = 0.1
+		val mutable thrustit = 0.1
 		val demi_largeur = 450.0
 		val demi_hauteur = 200.0
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
@@ -51,10 +51,10 @@ class user  (n:string)=
 		method set_pos x y = coordX <-  x ;coordY <- y
 		method reset_pos =  coordX <-  Random.float 450. ;coordY <- Random.float 200.0
 		method reset_score = score <- 0
-	
+		method inverse_vitesse = let vx, vy = vitesse in vitesse <- ( (-.vx), (-.vy) )
 		method rotation a = angle <- angle +. a;
-		method thrust = vitesse<- (let vx,vy = vitesse in 
-					(vx +. thrustit *. (cos angle),vy +. thrustit*.(sin angle)) )
+		method thrust = vitesse<- let vx,vy = vitesse in 
+					(vx +. thrustit *. (cos angle),vy +. thrustit*.(sin angle)) 
 		method deplacer = let vx,vy = vitesse in 
 						 coordX <- (let x = coordX +. vx in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
 								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
@@ -73,14 +73,17 @@ class obstacle (coord) =
 	object(self)
 		val mutable coordX = let x,y = coord in x 
 		val mutable coordY = let x,y = coord in y
-		val rayon = 15
 		method  get_coord = "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
+		method get_x = coordX
+		method get_y = coordY
 
 	end  
 
 class session (list_usrs:user list)= 
 	object(self)
 		val obj_radius = 20.
+		val ob_radius = 30.
+		val ve_radius = 50.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
 		val mutable objectifX = Random.float 450.0
@@ -145,8 +148,12 @@ class session (list_usrs:user list)=
 					
 		method get_usr_par_nom nom = find_usr nom users;
 		method touche_obj posX posY =  let distance = sqrt(((posX -. objectifX)*.(posX -. objectifX))+.((posY-. objectifY)*.(posY-.objectifY)))
-					  in if distance <= obj_radius then true else false ;
+					  in if distance <= obj_radius+.ve_radius then true else false ;
 	
+		method detect_touche_obstacles posX posY (usr:user) = List.iter (fun ob -> 
+											let distance = sqrt(((posX -. ob#get_x)*.(posX -. ob#get_x))+.((posY-. ob#get_y)*.(posY-.ob#get_y)))
+					  in if distance <= ob_radius+.ve_radius then usr#inverse_vitesse 
+											) list_obstacle
 		method est_fin_session = let l_scores = List.map (fun u -> u#get_score) users in s_fin l_scores win_cap 
 		method fin_de_session = print_endline "La session est fini !" ;
 							List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 

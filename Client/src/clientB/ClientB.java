@@ -144,7 +144,7 @@ public class ClientB extends Thread{
 		outchan.flush();
 		
 
-		getMyVehicule().reset();
+//		getMyVehicule().reset();
 	}
 	
 	public void tick(String [] vcoords_joueurs) {
