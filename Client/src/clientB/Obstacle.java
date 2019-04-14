@@ -15,7 +15,7 @@ public class Obstacle {
 	
 	public void drawObstacle(GraphicsContext gc, double centreX, double centreY) {
 		gc.setFill(Color.BROWN);
-		gc.fillOval(centreX+x, centreY+y, 15.0, 15.0);
+		gc.fillOval(centreX+x, centreY+y, 30.0,30.0);
 		
 	}
 

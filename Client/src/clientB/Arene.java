@@ -11,10 +11,12 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
@@ -35,8 +37,22 @@ public class Arene {
 	
 	private double centreX;
 	private double centreY;
+	
+	private ImageView iv = new ImageView(new Image(new File("images/VEHICULE.GIF").toURI().toString(),25,25,false,false));
+	
+	
+		/* 
+ 	ImageView iv = new ImageView(image);
+	iv.setRotate(40);
+	SnapshotParameters params = new SnapshotParameters();
+	params.setFill(Color.TRANSPARENT);
+	Image rotatedImage = iv.snapshot(params, null);
+	gc.drawImage(rotatedImage, 0, 0);
+	*/
+
 		
 	public Arene(ClientB client,int h, int w) {
+		
 		arene =new Stage();
 		arene.initModality(Modality.NONE);
 		this.client = client;
@@ -51,7 +67,7 @@ public class Arene {
 		c =new Canvas(w,h);
 		
 		
-		nodes.getChildren().add(c);
+		nodes.getChildren().addAll(c,iv);
 		drawArene();
 		
 		
@@ -115,10 +131,11 @@ public class Arene {
 		drawArene();
 		drawObjectif();
 		drawObstacles();
-		c.getGraphicsContext2D().setFill(Color.YELLOW);
 		Vehicule myV = client.getMyVehicule();
 		if(!client.phase.equals("attente") && myV != null) {
-			c.getGraphicsContext2D().fillOval(centreX+myV.getPositionX(), centreY+myV.getPositionY(), 15.0, 15.0);
+			iv.setRotate(Math.toDegrees(myV.direction()));
+			iv.setX(centreX+myV.getPositionX());
+			iv.setY(centreY+myV.getPositionY());
 			c.getGraphicsContext2D().setFill(Color.RED);
 			Map<String,Vehicule> others = client.getVehicules();
 			for(String j : others.keySet()) {

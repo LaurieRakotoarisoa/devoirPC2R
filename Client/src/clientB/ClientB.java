@@ -137,7 +137,7 @@ public class ClientB extends Thread{
 	
 	public void newComm() throws IOException {
 		Vehicule v = players.get(nom);
-		double a = v.getDirection();
+		double a = v.getMyMove();
 		int t = v.getNbPousse();
 		//System.out.println("NEWCOM/A"+a+"T"+t+"/");
 		outchan.writeBytes("NEWCOM/A"+a+"T"+t+"/\n");
