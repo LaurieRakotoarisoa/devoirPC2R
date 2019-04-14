@@ -7,6 +7,9 @@ let get_Scores user =
 let get_Vcoords user =
 	(user#get_nom)^":"^(user#get_vcoords)
 
+let get_Occord obstacle =
+	obstacle#get_coord
+	
 let rec find_usr nom users = 
 match users with
 []->failwith "user no found"
@@ -66,16 +69,30 @@ class user  (n:string)=
 
 	end
 
+class obstacle (coord) =
+	object(self)
+		val mutable coordX = let x,y = coord in x 
+		val mutable coordY = let x,y = coord in y
+		val rayon = 15
+		method  get_coord = "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
+
+	end  
 
 class session (list_usrs:user list)= 
 	object(self)
 		val obj_radius = 20.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
-		val mutable objectifX = Random.float 459.0
+		val mutable objectifX = Random.float 450.0
 		val mutable objectifY = Random.float 200.0
 		val mutable win_cap = 2
 		val mutable phase = "attente"
+		val mutable list_obstacle = []
+
+		method init_obstacles = let coord1 = ((Random.float 450.0),(Random.float 200.0)) 
+					and coord2 = ((Random.float 450.0),(Random.float 200.0)) in 
+				let o1 = new obstacle coord1 and o2 = new obstacle coord2 in 
+								list_obstacle<-o1::o2::list_obstacle
 		method connect x nom_socket = users <- (x:user)::users ;
 								list_usr_sock <- (nom_socket :string *Unix.file_descr)::list_usr_sock
 		method deconnect nom_usr = users <- List.filter (fun u -> not (String.equal u#get_nom nom_usr)) users;
@@ -94,6 +111,14 @@ class session (list_usrs:user list)=
 					in liste_to_str l2; 
 					!s;
 
+		method get_list_occords = let  l = List.map get_Occord list_obstacle in 
+								let s = ref (List.hd l) and l2 = List.tl l in
+						let rec liste_to_str liste =
+						match liste with
+						u::tl -> s := !s^"|"^u; liste_to_str tl;
+						| [] -> ()
+					in liste_to_str l2; 
+					!s;
 		method get_list_vcoords = let l =  List.map get_Vcoords users in
 					let s = ref (List.hd l) and l2 = List.tl l in
 						let rec liste_to_str liste =
@@ -139,7 +164,11 @@ class session (list_usrs:user list)=
 			list_usr_sock
 
 		method send_session = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
-			output_string outchan ("SESSION/"^self#get_list_coords^"/"^self#get_coord_objectif^"\n");flush outchan) 
+			output_string outchan ("SESSION/"^self#get_list_coords^"/"^self#get_coord_objectif^"/"^self#get_list_occords^"\n");flush outchan) 
+			list_usr_sock
+
+		method  send_welcome =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("WELCOME/"^self#get_phase ^"/"^self#get_list_scores^"/"^self#get_coord_objectif^"/"^self#get_list_occords^"\n");flush outchan) 
 			list_usr_sock
 
 		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users

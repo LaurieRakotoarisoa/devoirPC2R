@@ -54,7 +54,8 @@ let service_projet socket =
 									session_courant#connect usr (nom,socket);
 									signal_tout_sauf nom "NEWPLAYER";
 									print_endline ("Nouvelle connexion d’un client nomme "^usr#get_nom) );
-									output_string outchan ("WELCOME/"^session_courant#get_phase ^"/"^session_courant#get_list_scores^"/"^usr#get_coord^"\n"); flush outchan;
+									session_courant#init_obstacles;
+									session_courant#send_welcome;
 									if !rebour then ( rebour := false ;
 										let t = Thread.create compte_a_rebours () in Thread.join t;
 										lanche_session session_courant ;
