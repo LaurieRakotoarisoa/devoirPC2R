@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
-import client.RestartSessionException;
 import javafx.application.Platform;
 
 
@@ -31,17 +29,20 @@ public class ClientB extends Thread{
 	
 	private Map<String,Vehicule> players = new HashMap<String,Vehicule>();
 	private List<Obstacle> obstacles = new ArrayList<Obstacle>();
+	private List<Obstacle> bombes = new ArrayList<Obstacle>();
 	
 	public final Object sc_objectif = new Object();
 	public final Object sc_players = new Object();
+	public final Object sc_bombes = new Object();
 	
 	public final Object declenche = new Object();
+	
 	
 	private double rayon = 400;
 	
 	private ThreadEnvoi te;
 	
-	public Chat chat;
+	private Chat chat;
 	
 		
 	public ClientB(Socket s) {
@@ -58,6 +59,7 @@ public class ClientB extends Thread{
 	public void setChat(Chat c) {
 		chat = c;
 	}
+	
 	
 	
 	public boolean connexion(String name) throws IOException {
@@ -128,8 +130,9 @@ public class ClientB extends Thread{
 		setObjectif(Double.parseDouble(x.substring(1)),Double.parseDouble(y));
 		System.out.println("objectif "+x+" "+y);
 		
-		phase = "jeu";
+		
 		synchronized (declenche) {
+			phase = "jeu";
 			declenche.notify();
 		}
 	}
@@ -262,7 +265,7 @@ public class ClientB extends Thread{
 	
 	public void poserBombe() throws IOException {
 		System.out.println("bombe");
-		outchan.writeBytes("BOMB/X"+getMyVehicule().getPositionX()+"Y"+getMyVehicule().getPositionY()+"/\n");
+		outchan.writeBytes("ENVOIBOMBE/X"+getMyVehicule().getPositionX()+"Y"+getMyVehicule().getPositionY()+"/\n");
 		outchan.flush();
 	}
 	
@@ -273,6 +276,23 @@ public class ClientB extends Thread{
 	
 	public void receiveMessage(String msg) {
 		Platform.runLater(()->chat.receiveMessage(msg));
+	}
+	
+	public void setBombes(String [] bombes) {
+		synchronized (sc_bombes) {
+			this.bombes =  new ArrayList<Obstacle>();
+			for(String s : bombes) {
+				double ox = Double.parseDouble(s.split("Y")[0].substring(1));
+				double oy = Double.parseDouble(s.split("Y")[1]);
+				this.bombes.add(new Obstacle(ox, oy));
+			}	
+		}
+	}
+	
+	public List<Obstacle> getBombes(){
+		synchronized (sc_bombes) {
+			return bombes;
+		}
 	}
 	
 	public void tir() throws IOException {
@@ -298,7 +318,7 @@ public class ClientB extends Thread{
 						playerLeft(commande[1]); break;
 					case "SESSION" : 
 						session(commande[1], commande[2]);
-						if(commande.length >= 4) {
+						if(commande.length >= 4 && !commande[3].equals("")) {
 							setObstacles(commande[3].split("\\|"));
 						}break;
 					case "WINNER" : winner(commande[1]); break;
@@ -310,11 +330,14 @@ public class ClientB extends Thread{
 					
 					case "RECEPTION" : receiveMessage(commande[1]);
 					
+					case "BOMBE" : setBombes(commande[1].split("\\|"));
+					
 					default : break;
 					
 				}
 			} catch (IOException e) {
 				System.out.println("client B exception");
+				break;
 				
 			}
 			

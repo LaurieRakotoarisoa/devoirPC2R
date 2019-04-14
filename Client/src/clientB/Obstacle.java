@@ -13,8 +13,7 @@ public class Obstacle {
 		this.y = y;
 	}
 	
-	public void drawObstacle(GraphicsContext gc, double centreX, double centreY) {
-		gc.setFill(Color.BROWN);
+	public void draw(GraphicsContext gc, double centreX, double centreY) {
 		gc.fillOval(centreX+x, centreY+y, 30.0,30.0);
 		
 	}

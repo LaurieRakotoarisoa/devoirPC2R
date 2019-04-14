@@ -18,6 +18,7 @@ public class ThreadArene extends Thread{
 			e1.printStackTrace();
 		}
 		while(true) {
+			
 			try {
 				a.refresh();
 				Thread.sleep((int)((1.0/refresh_tickrate)*1000));

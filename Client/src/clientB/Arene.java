@@ -2,22 +2,18 @@ package clientB;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
-import client.Client;
 import clientB.ClientB;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlendMode;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -33,7 +29,6 @@ public class Arene {
 	private Canvas c;
 	private ClientB client;
 	private ThreadArene ta;
-	public boolean canRefresh = false;
 	
 	private double centreX;
 	private double centreY;
@@ -54,6 +49,7 @@ public class Arene {
 		arene.setResizable(false);
 		
 		nodes = new Group();
+		nodes.getChildren().add(new ToolBar(new Button("hi")));
 		c =new Canvas(w,h);
 		
 		
@@ -122,8 +118,16 @@ public class Arene {
 	}
 	
 	public void drawObstacles() {
+		c.getGraphicsContext2D().setFill(Color.BROWN);
 		for(Obstacle o : client.getObstacles()) {
-			o.drawObstacle(c.getGraphicsContext2D(), centreX, centreY);
+			o.draw(c.getGraphicsContext2D(), centreX, centreY);
+		}
+	}
+	
+	public void drawBombes() {
+		c.getGraphicsContext2D().setFill(Color.BLACK);
+		for(Obstacle b : client.getBombes()) {
+			b.draw(c.getGraphicsContext2D(), centreX, centreY);
 		}
 	}
 	
@@ -131,6 +135,7 @@ public class Arene {
 		drawArene();
 		drawObjectif();
 		drawObstacles();
+		drawBombes();
 		Vehicule myV = client.getMyVehicule();
 		if(!client.phase.equals("attente") && myV != null) {
 			iv.setRotate(Math.toDegrees(myV.direction()));
@@ -149,11 +154,23 @@ public class Arene {
 	}
 	
 	public void drawObjectif() {
-		c.getGraphicsContext2D().setFill(Color.BLACK);
+		c.getGraphicsContext2D().setFill(Color.YELLOW);
 		synchronized(client.sc_objectif) {
-			c.getGraphicsContext2D().fillOval(centreX+client.getObjectifX(), centreY +client.getObjectifY(), 15.0, 15.0);
+			c.getGraphicsContext2D().fillOval(centreX+client.getObjectifX(), centreY +client.getObjectifY(), 20.0, 20.0);
 		}
 		
+	}
+	
+	public void canRefresh() throws InterruptedException {
+		synchronized (client.declenche) {
+			while(!client.phase.equals("jeu")){
+				client.declenche.wait();
+			}
+		}
+	}
+	
+	public ClientB getClient() {
+		return client;
 	}
 
 
