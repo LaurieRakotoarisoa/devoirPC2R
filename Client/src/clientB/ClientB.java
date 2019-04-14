@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import client.RestartSessionException;
+import javafx.application.Platform;
 
 
 public class ClientB extends Thread{
@@ -40,6 +41,8 @@ public class ClientB extends Thread{
 	
 	private ThreadEnvoi te;
 	
+	public Chat chat;
+	
 		
 	public ClientB(Socket s) {
 		this.service = s;
@@ -51,6 +54,11 @@ public class ClientB extends Thread{
 		}
 		
 	}
+	
+	public void setChat(Chat c) {
+		chat = c;
+	}
+	
 	
 	public boolean connexion(String name) throws IOException {
 		outchan.writeBytes("CONNECT/"+name+"/\n");
@@ -144,7 +152,7 @@ public class ClientB extends Thread{
 		outchan.flush();
 		
 
-//		getMyVehicule().reset();
+		getMyVehicule().reset();
 	}
 	
 	public void tick(String [] vcoords_joueurs) {
@@ -252,6 +260,28 @@ public class ClientB extends Thread{
 		return obstacles;
 	}
 	
+	public void poserBombe() throws IOException {
+		System.out.println("bombe");
+		outchan.writeBytes("BOMB/X"+getMyVehicule().getPositionX()+"Y"+getMyVehicule().getPositionY()+"/\n");
+		outchan.flush();
+	}
+	
+	public void sendMessage(String txt) throws IOException {
+		outchan.writeBytes("ENVOI/"+txt+"/\n");
+		outchan.flush();
+	}
+	
+	public void receiveMessage(String msg) {
+		Platform.runLater(()->chat.receiveMessage(msg));
+	}
+	
+	public void tir() throws IOException {
+		System.out.println("tir");
+		outchan.writeBytes
+		("TIR/X"+getMyVehicule().getPositionX()+"Y"+getMyVehicule().getPositionY()+"T"+getMyVehicule().direction()+"/\n");
+		outchan.flush();
+	}
+	
 	
 	public void run() {
 		System.out.println("Demmarage");
@@ -277,6 +307,8 @@ public class ClientB extends Thread{
 						tick(commande[1].split("\\|")); break;
 					
 					case "NEWOBJ" : newObj(commande[1], commande[2]); break;
+					
+					case "RECEPTION" : receiveMessage(commande[1]);
 					
 					default : break;
 					

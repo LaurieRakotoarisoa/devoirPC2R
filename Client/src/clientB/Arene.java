@@ -38,25 +38,15 @@ public class Arene {
 	private double centreX;
 	private double centreY;
 	
-	private ImageView iv = new ImageView(new Image(new File("images/VEHICULE.GIF").toURI().toString(),25,25,false,false));
-	
-	
-		/* 
- 	ImageView iv = new ImageView(image);
-	iv.setRotate(40);
-	SnapshotParameters params = new SnapshotParameters();
-	params.setFill(Color.TRANSPARENT);
-	Image rotatedImage = iv.snapshot(params, null);
-	gc.drawImage(rotatedImage, 0, 0);
-	*/
-
+	private ImageView iv = new ImageView(new Image(new File("images/VEHICULE.GIF").toURI().toString(),50,50,false,false));
+	private Chat chat;
 		
 	public Arene(ClientB client,int h, int w) {
-		
+		chat = new Chat(client);
 		arene =new Stage();
 		arene.initModality(Modality.NONE);
 		this.client = client;
-		
+		client.setChat(chat);
 		height = h;
 		width = w;
 		centreX = w/2.0;
@@ -80,6 +70,16 @@ public class Arene {
 					case LEFT : client.getMyVehicule().clock(); break;
 					case RIGHT : client.getMyVehicule().anticlock(); break;
 					case UP : client.getMyVehicule().pousse(); break;
+					case B : try {
+							client.poserBombe();
+						} catch (IOException e) {
+							System.out.println("Erreur IO bombe");
+						}break;
+					case SPACE : try {
+							client.tir();
+						} catch (IOException e) {
+							System.out.println("Erreur IO tir");
+						}
 					default:
 						break; 
 					}
@@ -140,7 +140,7 @@ public class Arene {
 			Map<String,Vehicule> others = client.getVehicules();
 			for(String j : others.keySet()) {
 				if(!j.equals(client.nom)) {
-					c.getGraphicsContext2D().fillOval(others.get(j).getPositionX(), others.get(j).getPositionY(), 15.0, 15.0);
+					c.getGraphicsContext2D().fillOval(others.get(j).getPositionX(), others.get(j).getPositionY(), 50.0, 50.0);
 				}
 			}
 		}

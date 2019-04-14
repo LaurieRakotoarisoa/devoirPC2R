@@ -27,6 +27,7 @@ public class InterfaceClient extends Application{
 	
 	protected Arene arene;
 	protected String name;
+	protected Chat chat;
 	
 	public static void main(String [] args) {
 		Application.launch(InterfaceClient.class);
@@ -66,7 +67,7 @@ public class InterfaceClient extends Application{
             	   try {
 					if(c.connexion(userText.getText())) {
 						   arene = new Arene(c,400,900);
-						   c.start();
+ 						   c.start();
 						  
 					}
 					else {
