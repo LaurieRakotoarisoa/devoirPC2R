@@ -30,10 +30,12 @@ public class ClientB extends Thread{
 	private Map<String,Vehicule> players = new HashMap<String,Vehicule>();
 	private List<Obstacle> obstacles = new ArrayList<Obstacle>();
 	private List<Obstacle> bombes = new ArrayList<Obstacle>();
+	private List<Balle> tirs = new ArrayList<Balle>();
 	
 	public final Object sc_objectif = new Object();
 	public final Object sc_players = new Object();
 	public final Object sc_bombes = new Object();
+	public final Object sc_tirs = new Object();
 	
 	public final Object declenche = new Object();
 	
@@ -265,7 +267,7 @@ public class ClientB extends Thread{
 	
 	public void poserBombe() throws IOException {
 		System.out.println("bombe");
-		outchan.writeBytes("ENVOIBOMBE/X"+getMyVehicule().getPositionX()+"Y"+getMyVehicule().getPositionY()+"/\n");
+		outchan.writeBytes("ENVOIBOMBE/\n");
 		outchan.flush();
 	}
 	
@@ -295,10 +297,26 @@ public class ClientB extends Thread{
 		}
 	}
 	
+	public void setTirs(String [] tirs) {
+		synchronized (sc_tirs) {
+			this.tirs =  new ArrayList<Balle>();
+			for(String s : tirs) {
+				double ox = Double.parseDouble(s.split("Y")[0].substring(1));
+				double oy = Double.parseDouble(s.split("Y")[1]);
+				this.tirs.add(new Balle(ox,oy));
+			}	
+		}
+	}
+	
+	public List<Balle> getTirs(){
+		synchronized (sc_bombes) {
+			return tirs;
+		}
+	}
+	
 	public void tir() throws IOException {
 		System.out.println("tir");
-		outchan.writeBytes
-		("TIR/X"+getMyVehicule().getPositionX()+"Y"+getMyVehicule().getPositionY()+"T"+getMyVehicule().direction()+"/\n");
+		outchan.writeBytes("TIR/\n");
 		outchan.flush();
 	}
 	
@@ -328,9 +346,11 @@ public class ClientB extends Thread{
 					
 					case "NEWOBJ" : newObj(commande[1], commande[2]); break;
 					
-					case "RECEPTION" : receiveMessage(commande[1]);
+					case "RECEPTION" : receiveMessage(commande[1]);break;
 					
-					case "BOMBE" : setBombes(commande[1].split("\\|"));
+					case "BOMBE" : setBombes(commande[1].split("\\|")); break;
+					
+					case "BALLES" : setTirs(commande[1].split("\\|")); break;
 					
 					default : break;
 					

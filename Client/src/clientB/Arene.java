@@ -131,11 +131,18 @@ public class Arene {
 		}
 	}
 	
+	public void drawBalles() {
+		for(Balle b : client.getTirs()) {
+			b.drawBalle(c.getGraphicsContext2D(), centreX, centreY);
+		}
+	}
+	
 	public void refresh() throws IOException, InterruptedException {
 		drawArene();
 		drawObjectif();
 		drawObstacles();
 		drawBombes();
+		drawBalles();
 		Vehicule myV = client.getMyVehicule();
 		if(!client.phase.equals("attente") && myV != null) {
 			iv.setRotate(Math.toDegrees(myV.direction()));
@@ -145,7 +152,7 @@ public class Arene {
 			Map<String,Vehicule> others = client.getVehicules();
 			for(String j : others.keySet()) {
 				if(!j.equals(client.nom)) {
-					c.getGraphicsContext2D().fillOval(others.get(j).getPositionX(), others.get(j).getPositionY(), 50.0, 50.0);
+					c.getGraphicsContext2D().fillOval(others.get(j).getPositionX(), others.get(j).getPositionY(), 30.0, 30.0);
 				}
 			}
 		}
