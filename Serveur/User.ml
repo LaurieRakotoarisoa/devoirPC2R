@@ -132,8 +132,8 @@ class session (list_usrs:user list)=
 		val mutable win_cap = 2
 		val mutable phase = "attente"
 		val mutable list_obstacle = []
-		val mutable list_bombe = []
-		method ajout_bombe (b:bombe) = list_bombe <- b::list_bombe 
+		val mutable list_balles = []
+		method ajout_bombe (b:bombe) = list_balles <- b::list_balles 
 		method init_obstacles = let coord1 = ((Random.float 450.0),(Random.float 200.0)) 
 					and coord2 = ((Random.float 450.0),(Random.float 200.0)) in 
 				let o1 = new obstacle coord1 and o2 = new obstacle coord2 in 
@@ -156,7 +156,7 @@ class session (list_usrs:user list)=
 					in liste_to_str l2; 
 					!s;
 
-		method get_list_bcoords = let  l = List.map get_bcoord list_bombe in 
+		method get_list_bcoords = let  l = List.map get_bcoord list_balles in 
 								let s = ref (List.hd l) and l2 = List.tl l in
 						let rec liste_to_str liste =
 						match liste with
@@ -196,17 +196,18 @@ class session (list_usrs:user list)=
 		method touche_obj posX posY =  let distance = sqrt(((posX -. objectifX)*.(posX -. objectifX))+.((posY-. objectifY)*.(posY-.objectifY)))
 					  in if distance <= obj_radius+.ve_radius then true else false ;
 	
-		method detect_touche_obstacles posX posY (usr:user) = List.iter (fun ob -> 
-					let distance = sqrt(((posX -. ob#get_x)*.(posX -. ob#get_x))+.((posY-. ob#get_y)*.(posY-.ob#get_y)))
+		method detect_touche_obstacles  (usr:user) = List.iter (fun ob -> 
+					let distance = sqrt(((usr#get_x -. ob#get_x)*.(usr#get_x -. ob#get_x))+.((usr#get_y-. ob#get_y)*.(usr#get_y-.ob#get_y)))
 					  in if distance <= ob_radius+.ve_radius then usr#inverse_vitesse 
 											) list_obstacle
 
 		method detect_touche_bombes  (usr:user) = List.iter (fun bombe -> 
 					let distance = sqrt(((usr#get_x -. bombe#get_x)*.(usr#get_x -. bombe#get_x))+.((usr#get_y-. bombe#get_y)*.(usr#get_y-.bombe#get_y)))
 					in if distance <=  ve_radius then bombe#touche ; usr#freeze 
-					) list_bombe
+					) list_balles
 
-		method detect_collision = List.iter self#detect_touche_bombes users
+		method detect_collision = List.iter self#detect_touche_bombes users;
+							List.iter self#detect_touche_obstacles users
 		method est_fin_session = let l_scores = List.map (fun u -> u#get_score) users in s_fin l_scores win_cap 
 		method fin_de_session = print_endline "La session est fini !" ;
 							List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
@@ -233,12 +234,12 @@ class session (list_usrs:user list)=
 
 		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users
 		method  deplacement_vehicules =  List.iter (fun u-> u#deplacer ) users
-		method deplacement_bombes = List.iter (fun b -> b#bombe_move) list_bombe
+		method deplacement_bombes = List.iter (fun b -> b#bombe_move) list_balles
 		method send_bombes =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("BALLES/"^self#get_list_bcoords^"\n");flush outchan) 
 			list_usr_sock
 
-		method get_list_bombes =  list_bombe 
+		method get_list_bombes =  list_balles 
 		method envoi_pmessage (name:string) msg =  
 			List.iter (fun (usr,sock)->  if (String.equal usr name) then
 				let outchan = Unix.out_channel_of_descr sock in 
