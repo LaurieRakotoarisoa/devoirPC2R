@@ -58,6 +58,16 @@ public class ClientB extends Thread{
 		
 	}
 	
+	public ClientB() {
+		
+	}
+	
+	public void setClient(Socket s) throws IOException {
+		service = s;
+		inchan = new BufferedReader(new InputStreamReader(service.getInputStream()));
+		outchan = new DataOutputStream(s.getOutputStream());
+	}
+	
 	public void setChat(Chat c) {
 		chat = c;
 	}

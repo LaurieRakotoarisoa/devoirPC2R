@@ -7,7 +7,6 @@ import java.net.Socket;
 
 //import client.Client;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -21,7 +20,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class InterfaceClient extends Application{
 	
@@ -35,7 +33,7 @@ public class InterfaceClient extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		ClientB c = new ClientB(new Socket("127.0.0.1",1999));
+		final ClientB c = new ClientB();
 		GridPane grid = new GridPane();
 		grid.setHgap(20);
 		grid.setVgap(20);
@@ -57,6 +55,7 @@ public class InterfaceClient extends Application{
 		grid.add(AdresseIP,0,3);
 		
 		TextField AdressText = new TextField();
+		AdressText.setText("127.0.0.1");
 		grid.add(AdressText,4,3);
 		
 		Label user = new Label("User");
@@ -71,6 +70,7 @@ public class InterfaceClient extends Application{
 		grid.add(port,0,4);
 		
 		TextField portText = new TextField();
+		portText.setText("1999");
 		grid.add(portText, 4, 4);
 		
 		
@@ -81,6 +81,7 @@ public class InterfaceClient extends Application{
             	Alert a;
                if(!userText.getText().equals("")) {
             	   try {
+            		   c.setClient(new Socket(AdressText.getText(),Integer.parseInt(portText.getText())));
 					if(c.connexion(userText.getText())) {
 						   arene = new Arene(c,400,900);
  						   c.start();
