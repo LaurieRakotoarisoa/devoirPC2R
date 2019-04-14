@@ -127,15 +127,15 @@ class session (list_usrs:user list)=
 		val ve_radius = 50.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
-		val mutable objectifX = Random.float 450.0
-		val mutable objectifY = Random.float 200.0
+		val mutable objectifX = (Random.float 900.0)-.450.
+		val mutable objectifY = (Random.float 400.0)-.200.
 		val mutable win_cap = 2
 		val mutable phase = "attente"
 		val mutable list_obstacle = []
 		val mutable list_balles = []
 		method ajout_bombe (b:bombe) = list_balles <- b::list_balles 
-		method init_obstacles = let coord1 = ((Random.float 450.0),(Random.float 200.0)) 
-					and coord2 = ((Random.float 450.0),(Random.float 200.0)) in 
+		method init_obstacles = let coord1 = (  ((Random.float 900.0)-.450.),((Random.float 400.0)-.200.)) 
+					and coord2 = ( ((Random.float 900.0)-.450.),((Random.float 400.0)-.200.)) in 
 				let o1 = new obstacle coord1 and o2 = new obstacle coord2 in 
 								list_obstacle<-o1::o2::list_obstacle
 		method connect x nom_socket = users <- (x:user)::users ;
@@ -187,7 +187,7 @@ class session (list_usrs:user list)=
 		method session_lauched = print_endline "La session commence !";phase <- "jeu" ; 
 								 self#send_session
 		method get_phase = phase 
-		method genere_new_obj = objectifX <- Random.float 450.0; objectifY <- Random.float 200.0
+		method genere_new_obj = objectifX <- (Random.float 900.0)-.450.; objectifY <- (Random.float 400.0)-.200.
 		method send_new_obj = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("NEWOBJ/"^self#get_coord_objectif^"/"^self#get_list_scores^"\n");flush outchan) 
 			list_usr_sock ;
