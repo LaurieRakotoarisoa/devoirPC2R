@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import client.Client;
+import clientB.ClientB;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -28,8 +29,6 @@ public class Arene{
 	private Canvas c;
 	private Client client;
 	
-	private Image joueur = new Image(new File("images/IMG_0094.GIF").toURI().toString(),50,50,false,false);
-	
 	public Arene(Client client,int h, int w, Stage s) {
 		arene = s;
 		this.client = client;
@@ -44,9 +43,10 @@ public class Arene{
 		
 		nodes.getChildren().add(c);
 		drawArene();
+		drawObjectif();
 		
 		
-		arene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+		/*arene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 
 			@Override
 			public void handle(KeyEvent event) {
@@ -62,7 +62,7 @@ public class Arene{
 				
 			}
 			
-		});
+		});*/
 		
 		arene.setOnCloseRequest(new EventHandler<WindowEvent>() {
 
@@ -72,7 +72,6 @@ public class Arene{
 				try {
 					client.deconnexion();
 				} catch (IOException e) {
-					System.out.println("deconnexion");
 				}
 				
 			}
@@ -81,7 +80,6 @@ public class Arene{
 		
 		arene.setScene(new Scene(nodes,w,h));
 		arene.show();
-		new ThreadArene(this,client.getTickRate()).start();
 		
 	}
 	
@@ -91,7 +89,7 @@ public class Arene{
 		gc.fillRect(0, 0, width, height);
 	}
 	
-	public void refresh() throws IOException {
+	/*public void refresh() throws IOException {
 		client.changePos(width,height);
 		drawArene();
 		drawObjectif();
@@ -106,11 +104,12 @@ public class Arene{
 		}
 		
 		
-	}
+	}*/
 	
 	public void drawObjectif() {
 		c.getGraphicsContext2D().setFill(Color.BLACK);
-		c.getGraphicsContext2D().fillOval(client.getObjectif().getX(), client.getObjectif().getY(), 15.0, 15.0);
+		c.getGraphicsContext2D().fillOval(client.getObjectif().getX(), client.getObjectif().getY(), 15, 15);
+		
 	}
 
 

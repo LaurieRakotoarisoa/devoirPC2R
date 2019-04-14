@@ -12,7 +12,7 @@ public class ThreadArene extends Thread{
 	}
 	public void run() {
 		
-		while(true) {
+		/*while(true) {
 			try {
 				a.refresh();
 			} catch (IOException e) {
@@ -26,7 +26,9 @@ public class ThreadArene extends Thread{
 		}
 		
 		System.out.println("fin thread Arene");
-		
+		*/
+		while(true) {
+		}
 	}
 
 }
