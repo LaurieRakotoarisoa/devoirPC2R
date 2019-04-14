@@ -1,7 +1,7 @@
 (* compilation: ocamlc -thread unix.cma threads.cma echoserverthread.ml -o echoserver *)
-
 open User
 open Service
+
 let list_usr_noms = ref [];;
 let list_usr_sock = ref [];;
 let list_usr = ref [];;
@@ -95,6 +95,11 @@ let service_projet socket =
 									let usr = session_courant#get_usr_par_nom nom in
 									( usr#gerer_cmd a t )
 
+
+							)else if (String.equal h "ENVOIBOMBE") then (
+								let nom = !client_connecte  in
+								let usr = session_courant#get_usr_par_nom nom in
+								let b = usr#generer_bombe  in session_courant#ajout_bombe b
 
 							)
 

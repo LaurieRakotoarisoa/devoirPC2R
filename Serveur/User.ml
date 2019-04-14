@@ -1,3 +1,7 @@
+
+open Bombe
+let refresh_tickrate = 100.0
+
 let get_Coords user =
 	(user#get_nom)^":"^(user#get_coord)
 
@@ -9,6 +13,9 @@ let get_Vcoords user =
 
 let get_Occord obstacle =
 	obstacle#get_coord
+
+let get_bcoord bombe = 
+	bombe#get_coord
 	
 let rec find_usr nom users = 
 match users with
@@ -28,6 +35,13 @@ let print_coords l_users =
 		u::l -> print (s^"|"^u);
 		| [] -> s
 	in print ""
+
+let deplacement_bombe bombe =
+	while  bombe#est_visible do
+		Thread.delay (1.0/.refresh_tickrate);
+		bombe#bombe_move	
+	done
+
 
 class user  (n:string)=
 	object(self)
@@ -67,6 +81,9 @@ class user  (n:string)=
 		method  get_vcoords = let vx,vy = vitesse in 
 			self#get_coord ^ "VX"^(string_of_float vx)^"VY"^(string_of_float vy)^"T"^(string_of_float angle)
 
+		method generer_bombe = let vx,vy = vitesse in 
+					let b = new bombe coordX coordY vx vy in 
+					let _ = Thread.create deplacement_bombe b in () ; b 
 	end
 
 class obstacle (coord) =
@@ -77,6 +94,27 @@ class obstacle (coord) =
 		method get_x = coordX
 		method get_y = coordY
 
+	end  
+
+class bombe x y vX vY = 
+	object(self)
+		val mutable coordX = x
+		val mutable coordY = y
+		val vitesseX = 2. *. vX
+		val vitesseY = 2. *. vY
+		val demi_largeur = 450.0
+		val demi_hauteur = 200.0
+		val visible = true
+		method  get_coord = "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
+		method get_x = coordX
+		method get_y = coordY
+		method bombe_move = 
+						 coordX <- (let x = coordX +. vitesseX in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
+								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
+						 coordY <- (let y = coordY +. vitesseY in if (compare (floor y) demi_hauteur) >=0 then (-.demi_hauteur)
+						 		else if (compare (floor y)  (-. demi_hauteur))<=0 then demi_hauteur else y )
+
+		method est_visible = visible
 	end  
 
 class session (list_usrs:user list)= 
@@ -91,7 +129,8 @@ class session (list_usrs:user list)=
 		val mutable win_cap = 2
 		val mutable phase = "attente"
 		val mutable list_obstacle = []
-
+		val mutable list_bombe = []
+		method ajout_bombe (b:bombe) = list_bombe <- b::list_bombe 
 		method init_obstacles = let coord1 = ((Random.float 450.0),(Random.float 200.0)) 
 					and coord2 = ((Random.float 450.0),(Random.float 200.0)) in 
 				let o1 = new obstacle coord1 and o2 = new obstacle coord2 in 
@@ -114,30 +153,34 @@ class session (list_usrs:user list)=
 					in liste_to_str l2; 
 					!s;
 
+		method get_list_bcoords = let  l = List.map get_bcoord list_bombe in 
+								let s = ref (List.hd l) and l2 = List.tl l in
+						let rec liste_to_str liste =
+						match liste with
+						u::tl -> s := !s^"|"^u; liste_to_str tl;
+						| [] -> ()
+					in liste_to_str l2; !s
 		method get_list_occords = let  l = List.map get_Occord list_obstacle in 
 								let s = ref (List.hd l) and l2 = List.tl l in
 						let rec liste_to_str liste =
 						match liste with
 						u::tl -> s := !s^"|"^u; liste_to_str tl;
 						| [] -> ()
-					in liste_to_str l2; 
-					!s;
+					in liste_to_str l2; !s
 		method get_list_vcoords = let l =  List.map get_Vcoords users in
 					let s = ref (List.hd l) and l2 = List.tl l in
 						let rec liste_to_str liste =
 						match liste with
 						u::tl -> s := !s^"|"^u; liste_to_str tl;
 						| [] -> ()
-					in liste_to_str l2; 
-					!s;
+					in liste_to_str l2; !s
 		method get_list_scores = let l = List.map get_Scores users in
 					let s = ref (List.hd l) and l2 = List.tl l in
 						let rec liste_to_str liste =
 						match liste with
 						u::tl -> s := !s^"|"^u; liste_to_str tl;
 						| [] -> ()
-					in liste_to_str l2; 
-					!s;
+					in liste_to_str l2; !s
 		method session_lauched = print_endline "La session commence !";phase <- "jeu" ; 
 								 self#send_session
 		method get_phase = phase 
@@ -180,6 +223,11 @@ class session (list_usrs:user list)=
 
 		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users
 		method  deplacement_vehicules =  List.iter (fun u-> u#deplacer ) users
+		method send_bombes =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("BOMBE/"^self#get_list_bcoords^"\n");flush outchan) 
+			list_usr_sock
+
+		method get_list_bombes =  list_bombe 
 
 				
 	end		 
