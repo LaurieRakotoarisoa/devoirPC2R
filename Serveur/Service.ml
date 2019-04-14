@@ -49,7 +49,7 @@ let lanche_session s =
 	
 	s#session_lauched;
 	
-	(* let _ = Thread.create tick s and _ = Thread.create deplacement_vehicules s in () *)
+	let _ = Thread.create tick s and _ = Thread.create deplacement_vehicules s in ()
 
 	
 
