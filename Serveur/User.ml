@@ -30,13 +30,15 @@ class user  (n:string)=
 	object(self)
 		val mutable nom = n 
 		val mutable score = 0
-		val mutable coordX = Random.float 900.
-		val mutable coordY = Random.float 400.0
+		val mutable coordX = Random.float 450.
+		val mutable coordY = Random.float 200.0
 		val mutable vitesse = (0.,0.)
 		val mutable vainqueur = false
 		val mutable angle = 0.0
 		val mutable turnit = 1.0
 		val mutable thrustit = 1.0
+		val demi_largeur = 450.0
+		val demi_hauteur = 200.0
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method get_score = score
 		method add_score = score <- score + 1  
@@ -44,7 +46,7 @@ class user  (n:string)=
 		method get_nom_and_coord = nom^":"^"X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method gagne =  vainqueur <- true
 		method set_pos x y = coordX <-  x ;coordY <- y
-		method reset_pos =  coordX <-  Random.float 900. ;coordY <- Random.float 400.0
+		method reset_pos =  coordX <-  Random.float 450. ;coordY <- Random.float 200.0
 		method reset_score = score <- 0
 	
 		method rotation a = angle <- angle +. a;
@@ -52,8 +54,10 @@ class user  (n:string)=
 		method thrust = vitesse<- (let vx,vy = vitesse in 
 					(vx +. thrustit *. (cos angle),vy +. thrustit*.(sin angle)) )
 		method deplacer = let vx,vy = vitesse in 
-						 coordX <- coordX +. vx ;
-						 coordY <- coordY +. vy
+						 coordX <- (let x = coordX +. vx in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
+								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
+						 coordY <- (let y = coordY +. vy in if (compare (floor y) demi_hauteur) >=0 then (-.demi_hauteur)
+						 		else if (compare (floor y)  (-. demi_hauteur))<=0 then demi_hauteur else y )
 		method gerer_cmd a (t:int) = self#rotation a ;
 									for i = t downto 1 do
 										self#thrust
@@ -69,8 +73,8 @@ class session (list_usrs:user list)=
 		val obj_radius = 20.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
-		val mutable objectifX = Random.float 900.0
-		val mutable objectifY = Random.float 400.0
+		val mutable objectifX = Random.float 459.0
+		val mutable objectifY = Random.float 200.0
 		val mutable win_cap = 2
 		val mutable phase = "attente"
 		method connect x nom_socket = users <- (x:user)::users ;
@@ -110,7 +114,7 @@ class session (list_usrs:user list)=
 		method session_lauched = print_endline "La session commence !";phase <- "jeu" ; 
 								 self#send_session
 		method get_phase = phase 
-		method genere_new_obj = objectifX <- Random.float 900.0; objectifY <- Random.float 400.0
+		method genere_new_obj = objectifX <- Random.float 450.0; objectifY <- Random.float 200.0
 		method send_new_obj = List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("NEWOBJ/"^self#get_coord_objectif^"/"^self#get_list_scores^"\n");flush outchan) 
 			list_usr_sock ;
