@@ -4,11 +4,11 @@ import java.io.IOException;
 
 public class ThreadArene extends Thread{
 	private Arene a;
-	private double tickrate;
+	private double refresh_tickrate;
 	
 	public ThreadArene(Arene a,double t) {
 		this.a = a;
-		tickrate = t;
+		refresh_tickrate = t;
 	}
 	public void run() {
 		try {
@@ -20,7 +20,7 @@ public class ThreadArene extends Thread{
 		while(true) {
 			try {
 				a.refresh();
-				Thread.sleep((int)((1.0/tickrate)*1000));
+				Thread.sleep((int)((1.0/refresh_tickrate)*1000));
 
 			} catch (InterruptedException e) {
 				System.out.println("Interruption thread Arene");

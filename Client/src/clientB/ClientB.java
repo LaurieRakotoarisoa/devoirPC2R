@@ -5,7 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -27,13 +29,12 @@ public class ClientB extends Thread{
 	private double objectifY;
 	
 	private Map<String,Vehicule> players = new HashMap<String,Vehicule>();
+	private List<Obstacle> obstacles = new ArrayList<Obstacle>();
 	
 	public final Object sc_objectif = new Object();
 	public final Object sc_players = new Object();
 	
 	public final Object declenche = new Object();
-	
-	private Semaphore sem_aff = new Semaphore(0);
 	
 	private double rayon = 400;
 	
@@ -66,6 +67,9 @@ public class ClientB extends Thread{
 			String x = objectif.split("Y")[0];
 			String y = objectif.split("Y")[1];
 			setObjectif(Double.parseDouble(x.substring(1)),Double.parseDouble(y));
+			if(reponse.length >= 5) {
+				setObstacles(reponse[4].split("\\|"));
+			}
 			te = new ThreadEnvoi(this);
 			te.start();
 			return true;
@@ -138,13 +142,13 @@ public class ClientB extends Thread{
 		//System.out.println("NEWCOM/A"+a+"T"+t+"/");
 		outchan.writeBytes("NEWCOM/A"+a+"T"+t+"/\n");
 		outchan.flush();
+		
+
+		getMyVehicule().reset();
 	}
 	
 	public void tick(String [] vcoords_joueurs) {
 
-		if(getMyVehicule() != null) {
-			getMyVehicule().reset();
-		}
 		for(String s : vcoords_joueurs) {
 			String name = s.split("\\:")[0];
 			String data = s.split("\\:")[1];
@@ -210,6 +214,14 @@ public class ClientB extends Thread{
 		}
 	}
 	
+	public void setObstacles(String [] obstacles) {
+		for(String s : obstacles) {
+			double ox = Double.parseDouble(s.split("Y")[0].substring(1));
+			double oy = Double.parseDouble(s.split("Y")[1]);
+			this.obstacles.add(new Obstacle(ox, oy));
+		}
+	}
+	
 	public double getObjectifX() {
 		return objectifX;
 	}
@@ -217,6 +229,7 @@ public class ClientB extends Thread{
 	public double getObjectifY() {
 		return objectifY;
 	}
+	
 	
 	public Vehicule getMyVehicule() {
 		synchronized (sc_players) {
@@ -235,6 +248,10 @@ public class ClientB extends Thread{
 		return v;
 	}
 	
+	public List<Obstacle> getObstacles(){
+		return obstacles;
+	}
+	
 	
 	public void run() {
 		System.out.println("Demmarage");
@@ -250,7 +267,10 @@ public class ClientB extends Thread{
 					case "PLAYERLEFT" :
 						playerLeft(commande[1]); break;
 					case "SESSION" : 
-						session(commande[1], commande[2]); break;
+						session(commande[1], commande[2]);
+						if(commande.length >= 4) {
+							setObstacles(commande[3].split("\\|"));
+						}break;
 					case "WINNER" : winner(commande[1]); break;
 					
 					case "TICK" : 

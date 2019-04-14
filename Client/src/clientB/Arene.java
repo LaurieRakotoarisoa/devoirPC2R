@@ -53,7 +53,6 @@ public class Arene {
 		
 		nodes.getChildren().add(c);
 		drawArene();
-		drawObjectif();
 		
 		
 		arene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -106,9 +105,16 @@ public class Arene {
 		gc.fillRect(0, 0, width, height);
 	}
 	
+	public void drawObstacles() {
+		for(Obstacle o : client.getObstacles()) {
+			o.drawObstacle(c.getGraphicsContext2D(), centreX, centreY);
+		}
+	}
+	
 	public void refresh() throws IOException, InterruptedException {
 		drawArene();
 		drawObjectif();
+		drawObstacles();
 		c.getGraphicsContext2D().setFill(Color.YELLOW);
 		Vehicule myV = client.getMyVehicule();
 		if(!client.phase.equals("attente") && myV != null) {

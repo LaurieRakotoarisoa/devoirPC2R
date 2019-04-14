@@ -9,7 +9,7 @@ public class Vehicule {
 	private int pousse = 0;
 	private double rayon;
 	
-	private final double turnit = 0.174533;
+	private final double turnit = 0.43;
 	private final double thrustit = 5;
 	
 	public Vehicule(double rayon) {
