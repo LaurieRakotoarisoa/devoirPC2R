@@ -2,20 +2,18 @@ package clientB;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
-import client.Client;
 import clientB.ClientB;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.BlendMode;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -31,16 +29,19 @@ public class Arene {
 	private Canvas c;
 	private ClientB client;
 	private ThreadArene ta;
-	public boolean canRefresh = false;
 	
 	private double centreX;
 	private double centreY;
+	
+	private ImageView iv = new ImageView(new Image(new File("images/VEHICULE.GIF").toURI().toString(),50,50,false,false));
+	private Chat chat;
 		
 	public Arene(ClientB client,int h, int w) {
+		chat = new Chat(client);
 		arene =new Stage();
 		arene.initModality(Modality.NONE);
 		this.client = client;
-		
+		client.setChat(chat);
 		height = h;
 		width = w;
 		centreX = w/2.0;
@@ -48,12 +49,12 @@ public class Arene {
 		arene.setResizable(false);
 		
 		nodes = new Group();
+		nodes.getChildren().add(new ToolBar(new Button("hi")));
 		c =new Canvas(w,h);
 		
 		
-		nodes.getChildren().add(c);
+		nodes.getChildren().addAll(c,iv);
 		drawArene();
-		drawObjectif();
 		
 		
 		arene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -65,6 +66,16 @@ public class Arene {
 					case LEFT : client.getMyVehicule().clock(); break;
 					case RIGHT : client.getMyVehicule().anticlock(); break;
 					case UP : client.getMyVehicule().pousse(); break;
+					case B : try {
+							client.poserBombe();
+						} catch (IOException e) {
+							System.out.println("Erreur IO bombe");
+						}break;
+					case SPACE : try {
+							client.tir();
+						} catch (IOException e) {
+							System.out.println("Erreur IO tir");
+						}
 					default:
 						break; 
 					}
@@ -106,18 +117,35 @@ public class Arene {
 		gc.fillRect(0, 0, width, height);
 	}
 	
+	public void drawObstacles() {
+		c.getGraphicsContext2D().setFill(Color.BROWN);
+		for(Obstacle o : client.getObstacles()) {
+			o.draw(c.getGraphicsContext2D(), centreX, centreY);
+		}
+	}
+	
+	public void drawBombes() {
+		c.getGraphicsContext2D().setFill(Color.BLACK);
+		for(Obstacle b : client.getBombes()) {
+			b.draw(c.getGraphicsContext2D(), centreX, centreY);
+		}
+	}
+	
 	public void refresh() throws IOException, InterruptedException {
 		drawArene();
 		drawObjectif();
-		c.getGraphicsContext2D().setFill(Color.YELLOW);
+		drawObstacles();
+		drawBombes();
 		Vehicule myV = client.getMyVehicule();
 		if(!client.phase.equals("attente") && myV != null) {
-			c.getGraphicsContext2D().fillOval(centreX+myV.getPositionX(), centreY+myV.getPositionY(), 15.0, 15.0);
+			iv.setRotate(Math.toDegrees(myV.direction()));
+			iv.setX(centreX+myV.getPositionX());
+			iv.setY(centreY+myV.getPositionY());
 			c.getGraphicsContext2D().setFill(Color.RED);
 			Map<String,Vehicule> others = client.getVehicules();
 			for(String j : others.keySet()) {
 				if(!j.equals(client.nom)) {
-					c.getGraphicsContext2D().fillOval(others.get(j).getPositionX(), others.get(j).getPositionY(), 15.0, 15.0);
+					c.getGraphicsContext2D().fillOval(others.get(j).getPositionX(), others.get(j).getPositionY(), 50.0, 50.0);
 				}
 			}
 		}
@@ -126,11 +154,23 @@ public class Arene {
 	}
 	
 	public void drawObjectif() {
-		c.getGraphicsContext2D().setFill(Color.BLACK);
+		c.getGraphicsContext2D().setFill(Color.YELLOW);
 		synchronized(client.sc_objectif) {
-			c.getGraphicsContext2D().fillOval(centreX+client.getObjectifX(), centreY +client.getObjectifY(), 15.0, 15.0);
+			c.getGraphicsContext2D().fillOval(centreX+client.getObjectifX(), centreY +client.getObjectifY(), 20.0, 20.0);
 		}
 		
+	}
+	
+	public void canRefresh() throws InterruptedException {
+		synchronized (client.declenche) {
+			while(!client.phase.equals("jeu")){
+				client.declenche.wait();
+			}
+		}
+	}
+	
+	public ClientB getClient() {
+		return client;
 	}
 
 

@@ -27,6 +27,7 @@ public class InterfaceClient extends Application{
 	
 	protected Arene arene;
 	protected String name;
+	protected Chat chat;
 	
 	public static void main(String [] args) {
 		Application.launch(InterfaceClient.class);
@@ -34,7 +35,7 @@ public class InterfaceClient extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		ClientB c = new ClientB(new Socket("127.0.0.1",12345));
+		ClientB c = new ClientB(new Socket("127.0.0.1",1999));
 		GridPane grid = new GridPane();
 		grid.setHgap(20);
 		grid.setVgap(20);
@@ -66,7 +67,7 @@ public class InterfaceClient extends Application{
             	   try {
 					if(c.connexion(userText.getText())) {
 						   arene = new Arene(c,400,900);
-						   c.start();
+ 						   c.start();
 						  
 					}
 					else {

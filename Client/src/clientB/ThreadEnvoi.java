@@ -5,6 +5,8 @@ import java.io.IOException;
 public class ThreadEnvoi extends Thread {
 	private ClientB c;
 	
+	private int server_tickrate = 10;
+	
 	public ThreadEnvoi(ClientB client) {
 		c = client;
 	}
@@ -24,7 +26,7 @@ public class ThreadEnvoi extends Thread {
 				try {
 					c.newComm();
 					try {
-						Thread.sleep(100);
+						Thread.sleep((int)((1.0/server_tickrate)*1000));
 					} catch (InterruptedException e) {
 						break;
 					}

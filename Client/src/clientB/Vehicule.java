@@ -8,9 +8,9 @@ public class Vehicule {
 	private double direction = 0;
 	private int pousse = 0;
 	private double rayon;
-	
-	private final double turnit = 0.174533;
-	private final double thrustit = 5;
+	private double myMove = 0;
+	private final double turnit = 0.1;
+	private final double thrustit = 0.1;
 	
 	public Vehicule(double rayon) {
 		this.rayon = rayon;
@@ -19,15 +19,15 @@ public class Vehicule {
 	}
 	
 	
-	public synchronized void clock() {
-		direction = direction - turnit;	
-		System.out.println("clock "+direction);
+	public void clock() {
+		myMove = myMove - turnit;
+		System.out.println("clock "+myMove);
 
 	}
 	
-	public synchronized void anticlock() {
-		direction = direction + turnit;
-		System.out.println("anticlock "+direction);
+	public void anticlock() {
+		myMove = myMove + turnit;
+		System.out.println("anticlock "+myMove);
 	}
 	
 	public void thrust() {
@@ -69,10 +69,14 @@ public class Vehicule {
 	}
 	public synchronized void reset() {
 		pousse = 0;
-		direction = 0;
+		myMove = 0;
 	}
 	
-	public double getDirection() {
+	public double getMyMove() {
+		return myMove;
+	}
+	
+	public double direction() {
 		return direction;
 	}
 	
