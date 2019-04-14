@@ -5,7 +5,7 @@ package clientB;
 import java.io.IOException;
 import java.net.Socket;
 
-import client.Client;
+//import client.Client;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;

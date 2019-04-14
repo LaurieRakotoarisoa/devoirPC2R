@@ -1,5 +1,4 @@
 
-open Bombe
 let refresh_tickrate = 100.0
 
 let get_Coords user =
@@ -42,6 +41,27 @@ let deplacement_bombe bombe =
 		bombe#bombe_move	
 	done
 
+class bombe x y angle = 
+	object(self)
+		val mutable coordX = x
+		val mutable coordY = y
+		val vitesseX = 10. *. (cos angle)
+		val vitesseY = 10. *. (sin angle)
+		val demi_largeur = 450.0
+		val demi_hauteur = 200.0
+		val mutable visible = true
+		method  get_coord = "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
+		method get_x = coordX
+		method get_y = coordY
+		method bombe_move = 
+						 coordX <- (let x = coordX +. vitesseX in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
+								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
+						 coordY <- (let y = coordY +. vitesseY in if (compare (floor y) demi_hauteur) >=0 then (-.demi_hauteur)
+						 		else if (compare (floor y)  (-. demi_hauteur))<=0 then demi_hauteur else y )
+
+		method est_visible = visible
+		method touche = visible <- false
+	end  
 
 class user  (n:string)=
 	object(self)
@@ -56,6 +76,8 @@ class user  (n:string)=
 		val mutable thrustit = 0.1
 		val demi_largeur = 450.0
 		val demi_hauteur = 200.0
+		method get_x = coordX
+		method get_y = coordY  
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method get_score = score
 		method add_score = score <- score + 1  
@@ -81,9 +103,9 @@ class user  (n:string)=
 		method  get_vcoords = let vx,vy = vitesse in 
 			self#get_coord ^ "VX"^(string_of_float vx)^"VY"^(string_of_float vy)^"T"^(string_of_float angle)
 
-		method generer_bombe = let vx,vy = vitesse in 
-					let b = new bombe coordX coordY vx vy in 
+		method generer_bombe = let b = new bombe coordX coordY angle in 
 					let _ = Thread.create deplacement_bombe b in () ; b 
+		method freeze =  vitesse <- (0.,0.)
 	end
 
 class obstacle (coord) =
@@ -96,26 +118,7 @@ class obstacle (coord) =
 
 	end  
 
-class bombe x y vX vY = 
-	object(self)
-		val mutable coordX = x
-		val mutable coordY = y
-		val vitesseX = 2. *. vX
-		val vitesseY = 2. *. vY
-		val demi_largeur = 450.0
-		val demi_hauteur = 200.0
-		val visible = true
-		method  get_coord = "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
-		method get_x = coordX
-		method get_y = coordY
-		method bombe_move = 
-						 coordX <- (let x = coordX +. vitesseX in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
-								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
-						 coordY <- (let y = coordY +. vitesseY in if (compare (floor y) demi_hauteur) >=0 then (-.demi_hauteur)
-						 		else if (compare (floor y)  (-. demi_hauteur))<=0 then demi_hauteur else y )
 
-		method est_visible = visible
-	end  
 
 class session (list_usrs:user list)= 
 	object(self)
@@ -194,9 +197,16 @@ class session (list_usrs:user list)=
 					  in if distance <= obj_radius+.ve_radius then true else false ;
 	
 		method detect_touche_obstacles posX posY (usr:user) = List.iter (fun ob -> 
-											let distance = sqrt(((posX -. ob#get_x)*.(posX -. ob#get_x))+.((posY-. ob#get_y)*.(posY-.ob#get_y)))
+					let distance = sqrt(((posX -. ob#get_x)*.(posX -. ob#get_x))+.((posY-. ob#get_y)*.(posY-.ob#get_y)))
 					  in if distance <= ob_radius+.ve_radius then usr#inverse_vitesse 
 											) list_obstacle
+
+		method detect_touche_bombes  (usr:user) = List.iter (fun bombe -> 
+					let distance = sqrt(((usr#get_x -. bombe#get_x)*.(usr#get_x -. bombe#get_x))+.((usr#get_y-. bombe#get_y)*.(usr#get_y-.bombe#get_y)))
+					in if distance <=  ve_radius then bombe#touche ; usr#freeze 
+					) list_bombe
+
+		method detect_collision = List.iter self#detect_touche_bombes users
 		method est_fin_session = let l_scores = List.map (fun u -> u#get_score) users in s_fin l_scores win_cap 
 		method fin_de_session = print_endline "La session est fini !" ;
 							List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
