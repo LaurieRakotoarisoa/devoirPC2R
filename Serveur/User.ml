@@ -50,7 +50,6 @@ class user  (n:string)=
 		method reset_score = score <- 0
 	
 		method rotation a = angle <- angle +. a;
-					vitesse <- (thrustit*.(cos angle)),(thrustit*.(sin angle))
 		method thrust = vitesse<- (let vx,vy = vitesse in 
 					(vx +. thrustit *. (cos angle),vy +. thrustit*.(sin angle)) )
 		method deplacer = let vx,vy = vitesse in 
