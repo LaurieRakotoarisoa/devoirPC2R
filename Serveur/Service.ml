@@ -41,6 +41,11 @@ let deplacement_vehicules s =
 		Thread.delay (1.0/.refresh_tickrate);
 		s#deplacement_vehicules;		
 	done
+let deplacement_bombe s =
+	while  (String.equal s#get_phase "jeu" ) do
+		Thread.delay (1.0/.refresh_tickrate);
+		s#deplacement_bombes;
+	done
 
 let send_bombe s = 
 	while (String.equal s#get_phase "jeu" ) do

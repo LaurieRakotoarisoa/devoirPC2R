@@ -96,11 +96,16 @@ let service_projet socket =
 									( usr#gerer_cmd a t )
 
 
-							)else if (String.equal h "ENVOIBOMBE") then (
+							)else if (String.equal h "ENVOI") then (
+								let msg = (List.hd l) in 
 								let nom = !client_connecte  in
-								let usr = session_courant#get_usr_par_nom nom in
-								let b = usr#generer_bombe  in session_courant#ajout_bombe b
+								session_courant#envoi_msg nom msg
 
+							)else if (String.equal h "PENVOI") then (
+								let username = (List.hd l) in 
+								let msg = (List.hd (List.tl l)) in 
+								session_courant#envoi_pmessage username msg
+								
 							)
 
 							;

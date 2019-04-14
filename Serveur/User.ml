@@ -14,7 +14,8 @@ let get_Occord obstacle =
 	obstacle#get_coord
 
 let get_bcoord bombe = 
-	bombe#get_coord
+	if bombe#est_visible then
+		bombe#get_coord else ""
 	
 let rec find_usr nom users = 
 match users with
@@ -35,11 +36,7 @@ let print_coords l_users =
 		| [] -> s
 	in print ""
 
-let deplacement_bombe bombe =
-	while  bombe#est_visible do
-		Thread.delay (1.0/.refresh_tickrate);
-		bombe#bombe_move	
-	done
+
 
 class bombe x y angle = 
 	object(self)
@@ -53,11 +50,12 @@ class bombe x y angle =
 		method  get_coord = "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
 		method get_x = coordX
 		method get_y = coordY
-		method bombe_move = 
+		method bombe_move = if visible then (
 						 coordX <- (let x = coordX +. vitesseX in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
 								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
 						 coordY <- (let y = coordY +. vitesseY in if (compare (floor y) demi_hauteur) >=0 then (-.demi_hauteur)
 						 		else if (compare (floor y)  (-. demi_hauteur))<=0 then demi_hauteur else y )
+						)
 
 		method est_visible = visible
 		method touche = visible <- false
@@ -76,6 +74,7 @@ class user  (n:string)=
 		val mutable thrustit = 0.1
 		val demi_largeur = 450.0
 		val demi_hauteur = 200.0
+		val ob_radius = 30.
 		method get_x = coordX
 		method get_y = coordY  
 		method get_coord =  "X"^(string_of_float coordX)^"Y"^(string_of_float coordY)
@@ -103,8 +102,9 @@ class user  (n:string)=
 		method  get_vcoords = let vx,vy = vitesse in 
 			self#get_coord ^ "VX"^(string_of_float vx)^"VY"^(string_of_float vy)^"T"^(string_of_float angle)
 
-		method generer_bombe = let b = new bombe coordX coordY angle in 
-					let _ = Thread.create deplacement_bombe b in () ; b 
+		method generer_bombe = let x = coordX +. (ob_radius*.(cos angle)) and  y = coordY +. (ob_radius*.(sin angle)) in 
+					let b = new bombe x y angle in 
+					b 
 		method freeze =  vitesse <- (0.,0.)
 	end
 
@@ -233,11 +233,23 @@ class session (list_usrs:user list)=
 
 		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users
 		method  deplacement_vehicules =  List.iter (fun u-> u#deplacer ) users
+		method deplacement_bombes = List.iter (fun b -> b#bombe_move) list_bombe
 		method send_bombes =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
-			output_string outchan ("BOMBE/"^self#get_list_bcoords^"\n");flush outchan) 
+			output_string outchan ("BALLES/"^self#get_list_bcoords^"\n");flush outchan) 
 			list_usr_sock
 
 		method get_list_bombes =  list_bombe 
+		method envoi_pmessage (name:string) msg =  
+			List.iter (fun (usr,sock)->  if (String.equal usr name) then
+				let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("PRECEPTION/"^msg^"/"^name^"/\n");flush outchan) 
+			list_usr_sock
+		method envoi_msg (nom:string) msg = 
+		List.iter (fun (usr,sock)->  if not (String.equal usr nom) then
+			let outchan = Unix.out_channel_of_descr sock in 
+			output_string outchan ("RECEPTION/"^msg^"\n");flush outchan) 
+			list_usr_sock
 
-				
+
+							
 	end		 
