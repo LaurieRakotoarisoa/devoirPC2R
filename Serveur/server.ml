@@ -88,7 +88,20 @@ let service_projet socket =
 			
 								);
 
-							)else if(String.equal h "NEWCOM") then (
+							)else if (String.equal h "TIR") then(
+
+									let nom = !client_connecte in 
+									let usr = session_courant#get_usr_par_nom nom in 
+									let balle = usr# generer_balle in 
+									session_courant#ajout_balle balle ;
+
+									
+								
+
+							)
+
+
+							else if(String.equal h "NEWCOM") then (
 								let cmd = (List.hd l) in let len = String.length cmd and 
 								index_T = String.index cmd 'T' in 
 								let cmd_a = String.sub cmd 1 (index_T-1) 

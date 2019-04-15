@@ -66,12 +66,12 @@ public class Arene {
 					case LEFT : client.getMyVehicule().clock(); break;
 					case RIGHT : client.getMyVehicule().anticlock(); break;
 					case UP : client.getMyVehicule().pousse(); break;
-					case B : try {
+					case SPACE : try {
 							client.poserBombe();
 						} catch (IOException e) {
 							System.out.println("Erreur IO bombe");
 						}break;
-					case SPACE : try {
+					case  B: try {
 							client.tir();
 						} catch (IOException e) {
 							System.out.println("Erreur IO tir");

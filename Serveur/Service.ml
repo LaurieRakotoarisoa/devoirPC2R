@@ -48,11 +48,11 @@ let deplacement_bombe s =
 	done
 
 let send_bombe s = 
-	while (String.equal s#get_phase "jeu" ) do
+	while (String.equal s#get_phase "jeu"  ) do
 
 			Thread.delay (1.0/.server_tickrate);
-			if not ((List.length s#get_list_bombes)==0 ) then
-					s#send_bombes
+			if not ((List.length s#get_list_bombes)==0 ) && s#have_balle then
+					s#send_balles
 					(* print_endline s#get_list_bcoords *)
 			
 	done	
@@ -72,6 +72,13 @@ let detect_object s =
 			
 	done	
 
+let deplacement_balles s = 
+	while (String.equal s#get_phase "jeu" ) do
+
+			Thread.delay (1.0/.refresh_tickrate);
+			s#deplacement_balles
+			
+	done	
 let lanche_session s = 
 	
 	s#session_lauched;
@@ -80,7 +87,8 @@ let lanche_session s =
 	and _ = Thread.create deplacement_vehicules s 
 	and _ = Thread.create send_bombe s
 	and _ = Thread.create detect_collision s
-	and _ = Thread.create detect_object s  in ()
+	and _ = Thread.create detect_object s  
+	and _ = Thread.create deplacement_balles s in ()
 
 	
 

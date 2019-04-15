@@ -38,7 +38,7 @@ let print_coords l_users =
 
 
 
-class bombe x y angle = 
+class balle x y angle = 
 	object(self)
 		val mutable coordX = x
 		val mutable coordY = y
@@ -51,10 +51,10 @@ class bombe x y angle =
 		method get_x = coordX
 		method get_y = coordY
 		method bombe_move = if visible then (
-						 coordX <- (let x = coordX +. vitesseX in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
-								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
-						 coordY <- (let y = coordY +. vitesseY in if (compare (floor y) demi_hauteur) >=0 then (-.demi_hauteur)
-						 		else if (compare (floor y)  (-. demi_hauteur))<=0 then demi_hauteur else y )
+							  coordX <- (let x = coordX +. vitesseX in if (compare  x demi_largeur) >= 0  then (visible<-false ; 0. )
+								else if (compare  x (-.demi_largeur)) <= 0 then (visible<-false ; 0. ) else x);
+						 coordY <- (let y = coordY +. vitesseY in if (compare  y demi_hauteur) >=0 then (visible<-false ; 0. )
+						 		else if (compare  y  (-. demi_hauteur))<=0 then (visible<-false ; 0. ) else y )
 						)
 
 		method est_visible = visible
@@ -102,8 +102,8 @@ class user  (n:string)=
 		method  get_vcoords = let vx,vy = vitesse in 
 			self#get_coord ^ "VX"^(string_of_float vx)^"VY"^(string_of_float vy)^"T"^(string_of_float angle)
 
-		method generer_bombe = let x = coordX +. (ob_radius*.(cos angle)) and  y = coordY +. (ob_radius*.(sin angle)) in 
-					let b = new bombe x y angle in 
+		method generer_balle = let x = coordX +. (ob_radius*.(cos angle)) and  y = coordY +. (ob_radius*.(sin angle)) in 
+					let b = new balle x y angle in 
 					b 
 		method freeze =  vitesse <- (0.,0.)
 	end
@@ -133,8 +133,10 @@ class session (list_usrs:user list)=
 		val mutable phase = "attente"
 		val mutable list_obstacle = []
 		val mutable list_balles = []
-		method ajout_bombe (b:bombe) = list_balles <- b::list_balles 
-		method init_obstacles = let coord1 = (  ((Random.float 900.0)-.450.),((Random.float 400.0)-.200.)) 
+		method ajout_balle (b:balle) = list_balles <- b::list_balles 
+		method init_obstacles = list_obstacle <- [];
+
+				let coord1 = (  ((Random.float 900.0)-.450.),((Random.float 400.0)-.200.)) 
 					and coord2 = ( ((Random.float 900.0)-.450.),((Random.float 400.0)-.200.)) in 
 				let o1 = new obstacle coord1 and o2 = new obstacle coord2 in 
 								list_obstacle<-o1::o2::list_obstacle
@@ -160,7 +162,8 @@ class session (list_usrs:user list)=
 								let s = ref (List.hd l) and l2 = List.tl l in
 						let rec liste_to_str liste =
 						match liste with
-						u::tl -> s := !s^"|"^u; liste_to_str tl;
+						u::tl -> if (not (String.equal "" u)) then 
+						s := !s^"|"^u; liste_to_str tl;
 						| [] -> ()
 					in liste_to_str l2; !s
 		method get_list_occords = let  l = List.map get_Occord list_obstacle in 
@@ -185,6 +188,7 @@ class session (list_usrs:user list)=
 						| [] -> ()
 					in liste_to_str l2; !s
 		method session_lauched = print_endline "La session commence !";phase <- "jeu" ; 
+								list_balles<-[];
 								 self#send_session
 		method get_phase = phase 
 		method genere_new_obj = objectifX <- (Random.float 900.0)-.450.; objectifY <- (Random.float 400.0)-.200.
@@ -203,7 +207,7 @@ class session (list_usrs:user list)=
 
 		method detect_touche_bombes  (usr:user) = List.iter (fun bombe -> 
 					let distance = sqrt(((usr#get_x -. bombe#get_x)*.(usr#get_x -. bombe#get_x))+.((usr#get_y-. bombe#get_y)*.(usr#get_y-.bombe#get_y)))
-					in if distance <=  ve_radius then bombe#touche ; usr#freeze 
+					in if distance <=  ve_radius then bombe#touche ; (* usr#freeze *) 
 					) list_balles
 
 		method detect_object = List.iter self#touche_obj users
@@ -234,13 +238,13 @@ class session (list_usrs:user list)=
 			list_usr_sock
 
 		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users ;
-						list_obstacle <- [];
+						list_balles <- [];
 						self#init_obstacles
 
 
 		method  deplacement_vehicules =  List.iter (fun u-> u#deplacer ) users
-		method deplacement_bombes = List.iter (fun b -> b#bombe_move) list_balles
-		method send_bombes =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
+		method deplacement_balles = List.iter (fun b -> b#bombe_move) list_balles
+		method send_balles =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("BALLES/"^self#get_list_bcoords^"\n");flush outchan) 
 			list_usr_sock
 
@@ -255,6 +259,10 @@ class session (list_usrs:user list)=
 			let outchan = Unix.out_channel_of_descr sock in 
 			output_string outchan ("RECEPTION/"^msg^"\n");flush outchan) 
 			list_usr_sock
+
+		method have_balle = let have_balle = ref false in 
+						List.iter (fun b -> if b#est_visible then have_balle:=true ) list_balles;
+						!have_balle 
 
 
 							

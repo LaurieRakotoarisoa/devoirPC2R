@@ -378,7 +378,9 @@ public class ClientB extends Thread{
 					
 					case "BOMBE" : setBombes(commande[1].split("\\|")); break;
 					
-					case "BALLES" : setTirs(commande[1].split("\\|")); break;
+					case "BALLES" : setTirs(commande[1].split("\\|")); System.out.println(commande[1]);
+					break;
+					
 					
 					default : break;
 					
