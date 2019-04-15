@@ -1,20 +1,17 @@
 package clientB;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -25,12 +22,14 @@ public class Chat {
 	private GridPane container = new GridPane();
 	private ScrollPane sc = new ScrollPane(container);
 	private TextField tf= new TextField();
+	ListView<String> list;
 	private int index=0;
 	private ClientB client;
 	
 	public Chat(ClientB c) {
 		client = c;
 		chat.initModality(Modality.NONE);
+		list = new ListView<String>(c.getPlayers());
 		gp.setHgap(20);
 		gp.setVgap(20);
 		gp.setPadding(new Insets(25,25,25,25));
@@ -53,6 +52,24 @@ public class Chat {
 			}
 		});
 		gp.add(b,2,2);
+		
+		Button b2 = new Button("envoyer priver");
+		b2.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				if(!tf.getText().equals("")) {
+					try {
+						sendPMessage(tf.getText(),list.getSelectionModel().getSelectedItem());
+					} catch (IOException e) {
+						System.out.println("erreur PMESSAGE");
+					}
+				}
+				
+			}
+		});
+		gp.add(b2,2,3);
+		gp.add(list, 2, 5);
 		Scene scene = new Scene(gp,200,200);
 		chat.setScene(scene);
 		chat.show();
@@ -63,6 +80,15 @@ public class Chat {
 		Label msg = new Label(txt);
 		msg.setTextFill(Color.RED);
 		container.add(msg, 3, index++);
+	}
+	
+	public void sendPMessage(String txt, String user) throws IOException {
+		if(!user.equals("null")) {
+			client.sendPMessage(txt,user);
+			Label msg = new Label(txt);
+			msg.setTextFill(Color.GREEN);
+			container.add(msg, 3, index++);
+		}
 	}
 	
 	public void receiveMessage(String txt) {

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 
 public class ClientB extends Thread{
@@ -31,6 +33,7 @@ public class ClientB extends Thread{
 	private List<Obstacle> obstacles = new ArrayList<Obstacle>();
 	private List<Obstacle> bombes = new ArrayList<Obstacle>();
 	private List<Balle> tirs = new ArrayList<Balle>();
+	private ObservableList<String> playersList = FXCollections.observableArrayList();
 	
 	public final Object sc_objectif = new Object();
 	public final Object sc_players = new Object();
@@ -38,9 +41,6 @@ public class ClientB extends Thread{
 	public final Object sc_tirs = new Object();
 	
 	public final Object declenche = new Object();
-	
-	
-	private double rayon = 400;
 	
 	private ThreadEnvoi te;
 	
@@ -84,7 +84,7 @@ public class ClientB extends Thread{
 			this.nom = name;
 			System.out.println("Scores actuels :");
 			affiche_scores(reponse[2]);
-			
+			phase = "attente";
 			String objectif = reponse[3];
 			String x = objectif.split("Y")[0];
 			String y = objectif.split("Y")[1];
@@ -105,8 +105,9 @@ public class ClientB extends Thread{
 	
 	public void newPlayer(String name) {
 		synchronized(sc_players) {
-			players.put(name, new Vehicule(rayon));
+			players.put(name, new Vehicule());
 		}
+		playersList.add(name);
 	}
 	
 	public void exit() throws IOException {
@@ -120,6 +121,7 @@ public class ClientB extends Thread{
 			players.remove(name);
 			
 		}
+		playersList.remove(name);
 	}
 	
 	public void session(String coords_joueurs, String coords_objectif) {
@@ -130,13 +132,13 @@ public class ClientB extends Thread{
 				String position = s.split("\\:")[1];
 				String positionX = position.split("Y")[0].substring(1);
 				String positionY = position.split("Y")[1];
-				if(!players.containsKey("name")) {
-					players.put(name, new Vehicule(rayon));
+				if(!players.containsKey(name)) {
+					playersList.add(name);
+					players.put(name, new Vehicule());
 				}
 				players.get(name).setPosition(Double.parseDouble(positionX), Double.parseDouble(positionY));
 			}
 		}
-		
 		String x = coords_objectif.split("Y")[0];
 		String y = coords_objectif.split("Y")[1];
 		setObjectif(Double.parseDouble(x.substring(1)),Double.parseDouble(y));
@@ -190,7 +192,7 @@ public class ClientB extends Thread{
 			System.out.println(direction);*/
 			synchronized(sc_players) {
 				if(!players.containsKey(name)) {
-					players.put(name, new Vehicule(rayon));
+					players.put(name, new Vehicule());
 				}
 				
 				players.get(name).setVitesse(vitesseX,vitesseY);
@@ -271,6 +273,7 @@ public class ClientB extends Thread{
 		return v;
 	}
 	
+	
 	public List<Obstacle> getObstacles(){
 		return obstacles;
 	}
@@ -283,6 +286,11 @@ public class ClientB extends Thread{
 	
 	public void sendMessage(String txt) throws IOException {
 		outchan.writeBytes("ENVOI/"+txt+"/\n");
+		outchan.flush();
+	}
+	
+	public void sendPMessage(String txt, String user) throws IOException {
+		outchan.writeBytes("PENVOI/"+txt+"/"+user+"/\n");
 		outchan.flush();
 	}
 	
@@ -322,6 +330,10 @@ public class ClientB extends Thread{
 		synchronized (sc_bombes) {
 			return tirs;
 		}
+	}
+	
+	public ObservableList<String> getPlayers(){
+		return playersList;
 	}
 	
 	public void tir() throws IOException {
