@@ -122,9 +122,9 @@ class obstacle (coord) =
 
 class session (list_usrs:user list)= 
 	object(self)
-		val obj_radius = 20.
+		val obj_radius = 50.
 		val ob_radius = 30.
-		val ve_radius = 30.
+		val ve_radius = 10.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
 		val mutable objectifX = (Random.float 900.0)-.450.

@@ -96,5 +96,11 @@ public class Chat {
 		msg.setTextFill(Color.BLUE);
 		container.add(msg, 0, index++);
 	}
+	
+	public void receivePMessage(String txt,String usr) {
+		Label msg = new Label(usr+":"+txt);
+		msg.setTextFill(Color.BLUE);
+		container.add(msg, 0, index++);
+	}
 
 }
