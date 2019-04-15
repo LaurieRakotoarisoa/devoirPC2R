@@ -146,8 +146,8 @@ public class Arene {
 		Vehicule myV = client.getMyVehicule();
 		if(!client.phase.equals("attente") && myV != null) {
 			iv.setRotate(Math.toDegrees(myV.direction()));
-			iv.setX(centreX+myV.getPositionX());
-			iv.setY(centreY+myV.getPositionY());
+			iv.setX(centreX+myV.getPositionX()-25);
+			iv.setY(centreY+myV.getPositionY()-25);
 			c.getGraphicsContext2D().setFill(Color.RED);
 			Map<String,Vehicule> others = client.getVehicules();
 			for(String j : others.keySet()) {
@@ -163,7 +163,7 @@ public class Arene {
 	public void drawObjectif() {
 		c.getGraphicsContext2D().setFill(Color.YELLOW);
 		synchronized(client.sc_objectif) {
-			c.getGraphicsContext2D().fillOval(centreX+client.getObjectifX(), centreY +client.getObjectifY(), 20.0, 20.0);
+			c.getGraphicsContext2D().fillOval(centreX+client.getObjectifX()-10, centreY +client.getObjectifY()-10, 20.0, 20.0);
 		}
 		
 	}

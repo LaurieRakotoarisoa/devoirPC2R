@@ -89,7 +89,7 @@ public class ClientB extends Thread{
 			String x = objectif.split("Y")[0];
 			String y = objectif.split("Y")[1];
 			setObjectif(Double.parseDouble(x.substring(1)),Double.parseDouble(y));
-			if(reponse.length >= 5) {
+			if(reponse.length >= 5  && !(reponse[4].equals(""))) {
 				setObstacles(reponse[4].split("\\|"));
 			}
 			te = new ThreadEnvoi(this);
@@ -147,7 +147,7 @@ public class ClientB extends Thread{
 		
 		synchronized (declenche) {
 			phase = "jeu";
-			declenche.notify();
+			declenche.notifyAll();
 		}
 	}
 	
@@ -207,7 +207,7 @@ public class ClientB extends Thread{
 		if(phase.equals("attente")) {
 			phase = "jeu";
 			synchronized (declenche) {
-				declenche.notify();
+				declenche.notifyAll();
 			}
 		}
 		
@@ -298,6 +298,10 @@ public class ClientB extends Thread{
 		Platform.runLater(()->chat.receiveMessage(msg));
 	}
 	
+	public void receivePMessage(String msg,String usr) {
+		Platform.runLater(()->chat.receivePMessage(msg,usr));
+	}
+	
 	public void setBombes(String [] bombes) {
 		synchronized (sc_bombes) {
 			this.bombes =  new ArrayList<Obstacle>();
@@ -369,6 +373,8 @@ public class ClientB extends Thread{
 					case "NEWOBJ" : newObj(commande[1], commande[2]); break;
 					
 					case "RECEPTION" : receiveMessage(commande[1]);break;
+					
+					case "PRECEPTION" : receivePMessage(commande[1],commande[2]);break;
 					
 					case "BOMBE" : setBombes(commande[1].split("\\|")); break;
 					
