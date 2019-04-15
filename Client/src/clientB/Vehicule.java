@@ -7,13 +7,11 @@ public class Vehicule {
 	private double vitesseY;
 	private double direction = 0;
 	private int pousse = 0;
-	private double rayon;
 	private double myMove = 0;
 	private final double turnit = 0.1;
 	private final double thrustit = 0.1;
 	
-	public Vehicule(double rayon) {
-		this.rayon = rayon;
+	public Vehicule() {
 		vitesseX = 0;
 		vitesseY = 0;
 	}

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -42,8 +41,6 @@ public class ClientB extends Thread{
 	public final Object sc_tirs = new Object();
 	
 	public final Object declenche = new Object();
-	
-	private double rayon = 400;
 	
 	private ThreadEnvoi te;
 	
@@ -108,7 +105,7 @@ public class ClientB extends Thread{
 	
 	public void newPlayer(String name) {
 		synchronized(sc_players) {
-			players.put(name, new Vehicule(rayon));
+			players.put(name, new Vehicule());
 		}
 		playersList.add(name);
 	}
@@ -137,7 +134,7 @@ public class ClientB extends Thread{
 				String positionY = position.split("Y")[1];
 				if(!players.containsKey(name)) {
 					playersList.add(name);
-					players.put(name, new Vehicule(rayon));
+					players.put(name, new Vehicule());
 				}
 				players.get(name).setPosition(Double.parseDouble(positionX), Double.parseDouble(positionY));
 			}
@@ -195,7 +192,7 @@ public class ClientB extends Thread{
 			System.out.println(direction);*/
 			synchronized(sc_players) {
 				if(!players.containsKey(name)) {
-					players.put(name, new Vehicule(rayon));
+					players.put(name, new Vehicule());
 				}
 				
 				players.get(name).setVitesse(vitesseX,vitesseY);
