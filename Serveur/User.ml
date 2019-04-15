@@ -91,10 +91,10 @@ class user  (n:string)=
 		method thrust = vitesse<- let vx,vy = vitesse in 
 					(vx +. thrustit *. (cos angle),vy +. thrustit*.(sin angle)) 
 		method deplacer = let vx,vy = vitesse in 
-						 coordX <- (let x = coordX +. vx in if (compare (floor x) demi_largeur) >= 0  then (-.demi_largeur) 
-								else if (compare (floor x) (-.demi_largeur)) <= 0 then demi_largeur else x);
-						 coordY <- (let y = coordY +. vy in if (compare (floor y) demi_hauteur) >=0 then (-.demi_hauteur)
-						 		else if (compare (floor y)  (-. demi_hauteur))<=0 then demi_hauteur else y )
+						 coordX <- (let x = coordX +. vx in if (compare  x demi_largeur) >= 0  then (-.demi_largeur) 
+								else if (compare  x (-.demi_largeur)) <= 0 then demi_largeur else x);
+						 coordY <- (let y = coordY +. vy in if (compare  y demi_hauteur) >=0 then (-.demi_hauteur)
+						 		else if (compare  y  (-. demi_hauteur))<=0 then demi_hauteur else y )
 		method gerer_cmd a (t:int) = self#rotation a ;
 									for i = t downto 1 do
 										self#thrust
@@ -122,9 +122,9 @@ class obstacle (coord) =
 
 class session (list_usrs:user list)= 
 	object(self)
-		val obj_radius = 50.
-		val ob_radius = 30.
-		val ve_radius = 10.
+		val obj_radius = 20.
+		val ob_radius = 15.
+		val ve_radius = 15.
 		val mutable users = list_usrs
 		val mutable list_usr_sock = []
 		val mutable objectifX = (Random.float 900.0)-.450.
@@ -233,7 +233,11 @@ class session (list_usrs:user list)=
 			output_string outchan ("WELCOME/"^self#get_phase ^"/"^self#get_list_scores^"/"^self#get_coord_objectif^"/"^self#get_list_occords^"\n");flush outchan) 
 			list_usr_sock
 
-		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users
+		method reset = List.iter (fun u -> u#reset_score ; u#reset_pos) users ;
+						list_obstacle <- [];
+						self#init_obstacles
+
+
 		method  deplacement_vehicules =  List.iter (fun u-> u#deplacer ) users
 		method deplacement_bombes = List.iter (fun b -> b#bombe_move) list_balles
 		method send_bombes =  List.iter (fun (usr,sock)->  let outchan = Unix.out_channel_of_descr sock in 
