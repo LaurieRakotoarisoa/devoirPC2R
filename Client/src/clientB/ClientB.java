@@ -87,7 +87,7 @@ public class ClientB extends Thread{
 			this.nom = name;
 			System.out.println("Scores actuels :");
 			affiche_scores(reponse[2]);
-			
+			phase = "attente";
 			String objectif = reponse[3];
 			String x = objectif.split("Y")[0];
 			String y = objectif.split("Y")[1];
