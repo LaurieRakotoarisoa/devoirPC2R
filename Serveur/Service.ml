@@ -64,6 +64,13 @@ let detect_collision s =
 			s#detect_collision
 			
 	done	
+let detect_object s = 
+	while (String.equal s#get_phase "jeu" ) do
+
+			Thread.delay (1.0/.refresh_tickrate);
+			s#detect_object
+			
+	done	
 
 let lanche_session s = 
 	
@@ -72,7 +79,8 @@ let lanche_session s =
 	let _ = Thread.create tick s 
 	and _ = Thread.create deplacement_vehicules s 
 	and _ = Thread.create send_bombe s
-	and _ = Thread.create detect_collision s in ()
+	and _ = Thread.create detect_collision s
+	and _ = Thread.create detect_object s  in ()
 
 	
 

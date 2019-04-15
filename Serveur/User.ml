@@ -193,8 +193,8 @@ class session (list_usrs:user list)=
 			list_usr_sock ;
 					
 		method get_usr_par_nom nom = find_usr nom users;
-		method touche_obj posX posY =  let distance = sqrt(((posX -. objectifX)*.(posX -. objectifX))+.((posY-. objectifY)*.(posY-.objectifY)))
-					  in if distance <= obj_radius+.ve_radius then true else false ;
+		method touche_obj usr  =  let distance = sqrt(((usr#get_x -. objectifX)*.(usr#get_x -. objectifX))+.((usr#get_y-. objectifY)*.(usr#get_y-.objectifY)))
+					  in if distance <= obj_radius+.ve_radius then (usr#add_score; self#genere_new_obj; self#send_new_obj)  ;
 	
 		method detect_touche_obstacles  (usr:user) = List.iter (fun ob -> 
 					let distance = sqrt(((usr#get_x -. ob#get_x)*.(usr#get_x -. ob#get_x))+.((usr#get_y-. ob#get_y)*.(usr#get_y-.ob#get_y)))
@@ -206,6 +206,7 @@ class session (list_usrs:user list)=
 					in if distance <=  ve_radius then bombe#touche ; usr#freeze 
 					) list_balles
 
+		method detect_object = List.iter self#touche_obj users
 		method detect_collision = List.iter self#detect_touche_bombes users;
 							List.iter self#detect_touche_obstacles users
 		method est_fin_session = let l_scores = List.map (fun u -> u#get_score) users in s_fin l_scores win_cap 
